@@ -30,8 +30,8 @@ def _get_collection(msv_path):
 
 @celery_instance.task
 def populate_ftp():
-    #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
-    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=30&offset=9001&query=").json()["row_data"]
+    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
+    #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=30&offset=9001&query=").json()["row_data"]
     for dataset in all_dataset_list:
         accession = dataset["dataset"]
         print(accession)
