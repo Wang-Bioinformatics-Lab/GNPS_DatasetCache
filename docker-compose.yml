@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  gnps-datasetcache-web:
+    build: .
+    ports:
+      - "5234:5000"
+    volumes:
+      - ../database/:/app/database
+      - ../temp/:/app/temp
+      - ../logs/:/app/logs
+    command: /app/run_server.sh
+
+  gnps-datasetcache-worker:
+    build: .
+    volumes:
+      - ../database/:/app/database
+      - ../temp/:/app/temp
+    command: /app/run_worker_compute.sh
