@@ -38,16 +38,17 @@ def populate_ftp():
         all_dataset_files = utils._get_massive_files(accession)
         
         for filename in all_dataset_files:
-            collection_name =  _get_collection(filename)
-            print(filename, accession, collection_name)
-            filename_db = Filename.get_or_create(filepath=filename, dataset=accession, collection=collection_name)
-            #save_key = filename_db.save()
-            #print("save_key", save_key)
+            try:
+                collection_name =  _get_collection(filename)
+                filename_db = Filename.get_or_create(filepath=filename, dataset=accession, collection=collection_name)
+            except:
+                pass
+            
 
 
 celery_instance.conf.beat_schedule = {
     "populate_ftp": {
         "task": "compute_tasks.populate_ftp",
-        "schedule": 5.0
+        "schedule": 86400
     }
 }

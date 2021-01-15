@@ -10,6 +10,8 @@ import json
 import uuid
 import requests
 
+import compute_tasks
+
 @app.route('/', methods=['GET'])
 def renderhomepage():
     db_count = Filename.select().count()
@@ -41,5 +43,11 @@ def testapi():
     return_obj = {}
     return_obj["status"] = "success"
     return json.dumps(return_obj)
+
+
+@app.route('/refresh', methods=['GET'])
+def refresh():
+    compute_tasks.populate_ftp.delay()
+    return "REFRESHING"
 
 
