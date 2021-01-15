@@ -22,9 +22,3 @@ app = CustomFlask(__name__)
 app.config.from_object(__name__)
 db = SqliteDatabase(app.config['DATABASE'], pragmas=[('journal_mode', 'wal')])
 
-app.config['UPLOAD_FOLDER'] = './tempuploads'
-
-try:
-    os.mkdir(app.config['UPLOAD_FOLDER'])
-except:
-    print("Cannot Create", app.config['UPLOAD_FOLDER'])

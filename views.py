@@ -12,6 +12,7 @@ import requests
 
 @app.route('/', methods=['GET'])
 def renderhomepage():
+    
     return render_template('homepage.html')
 
 @app.route('/heartbeat', methods=['GET'])
