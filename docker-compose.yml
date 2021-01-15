@@ -9,11 +9,28 @@ services:
       - ../database/:/app/database
       - ../temp/:/app/temp
       - ../logs/:/app/logs
+    networks:
+      - default
+      - nginx-net
     command: /app/run_server.sh
+    
 
   gnps-datasetcache-worker:
     build: .
     volumes:
       - ../database/:/app/database
       - ../temp/:/app/temp
+    networks:
+      - default
+      - nginx-net
     command: /app/run_worker_compute.sh
+    
+  redis:
+    image: redis
+    networks:
+      - default
+
+networks:
+  nginx-net:
+    external:
+      name: nginx-net
