@@ -12,8 +12,8 @@ import requests
 
 @app.route('/', methods=['GET'])
 def renderhomepage():
-    
-    return render_template('homepage.html')
+    db_count = Filename.select().count()
+    return render_template('homepage.html', db_count=db_count)
 
 @app.route('/heartbeat', methods=['GET'])
 def testapi():

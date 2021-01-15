@@ -6,9 +6,9 @@ services:
     ports:
       - "5234:5000"
     volumes:
-      - ../database/:/app/database
-      - ../temp/:/app/temp
-      - ../logs/:/app/logs
+      - ./database/:/app/database
+      - ./temp/:/app/temp
+      - ./logs/:/app/logs
     networks:
       - default
       - nginx-net
@@ -18,8 +18,8 @@ services:
   gnps-datasetcache-worker:
     build: .
     volumes:
-      - ../database/:/app/database
-      - ../temp/:/app/temp
+      - ./database/:/app/database
+      - ./temp/:/app/temp
     networks:
       - default
       - nginx-net

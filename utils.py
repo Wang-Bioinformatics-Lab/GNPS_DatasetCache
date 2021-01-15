@@ -2,7 +2,8 @@
 import pandas as pd
 import requests
 import os
-
+import ftputil
+import ming_proteosafe_library
 
 def get_dataset_files(accession, metadata_source):
     """This gives a pandas dataframe with files and appended metadata
@@ -67,9 +68,6 @@ def get_dataset_description(accession):
 
 
 def _get_massive_files(dataset_accession):
-    import ftputil
-    import ming_proteosafe_library
-
     massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
 
     all_files = ming_proteosafe_library.get_all_files_in_dataset_folder_ftp(dataset_accession, "ccms_peak", massive_host=massive_host)
