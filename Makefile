@@ -1,7 +1,7 @@
 #Docker Compose
 server-compose-interactive:
 	docker-compose build
-	docker-compose up 
+	docker-compose --log-level DEBUG up 
 
 server-compose-background:
 	docker-compose build

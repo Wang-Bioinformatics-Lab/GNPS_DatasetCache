@@ -30,6 +30,17 @@ services:
     networks:
       - default
 
+  datasette:
+    ports:
+      - "5235:8001"
+    image: datasetteproject/datasette
+    volumes:
+      - ./database/:/app/database:ro
+    networks:
+      - nginx-net
+      - default
+    command: datasette -p 8001 -h 0.0.0.0 --setting base_url /datasette/ /app/database/database.db
+
 networks:
   nginx-net:
     external:
