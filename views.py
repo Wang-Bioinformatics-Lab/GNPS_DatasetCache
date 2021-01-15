@@ -1,5 +1,5 @@
 # views.py
-from flask import abort, jsonify, render_template, request, redirect, url_for, send_file, make_response
+from flask import abort, jsonify, render_template, request, redirect, url_for, send_file, make_response, Response
 
 from app import app
 from models import *
@@ -50,4 +50,14 @@ def refresh():
     compute_tasks.populate_ftp.delay()
     return "REFRESHING"
 
+
+@app.route('/datasette/<path:path>',methods=['GET'])
+def proxy(path):
+    SITE_NAME = "http://datasette:8001/"
+    if request.method=='GET':
+        resp = requests.get(f'{SITE_NAME}{path}')
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+    return response
 
