@@ -12,13 +12,26 @@ import requests
 
 import compute_tasks
 
+def _count_number_of_datasets():
+    return Filename.select().group_by(Filename.dataset).count()
+
 @app.route('/', methods=['GET'])
 def renderhomepage():
     db_count = Filename.select().count()
     raw_db_count = Filename.select().where(Filename.collection == "raw").count()
     ccms_peak_db_count = Filename.select().where(Filename.collection == "ccms_peak").count()
     peak_db_count = Filename.select().where(Filename.collection == "peak").count()
-    return render_template('homepage.html', db_count=db_count, raw_db_count=raw_db_count, ccms_peak_db_count=ccms_peak_db_count, peak_db_count=peak_db_count)
+
+    # Counting number of datasets
+    dataset_count = _count_number_of_datasets()
+    print(dataset_count)
+
+    return render_template('homepage.html', 
+                            db_count=db_count, 
+                            raw_db_count=raw_db_count, 
+                            ccms_peak_db_count=ccms_peak_db_count, 
+                            peak_db_count=peak_db_count,
+                            dataset_count=dataset_count)
 
 @app.route('/dataset/<accession>/files', methods=['GET'])
 def getfiles(accession):
