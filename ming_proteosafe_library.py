@@ -531,7 +531,10 @@ def get_all_files_in_dataset_folder_ftp(dataset_accession, folder_prefix, includ
     if massive_host == None:
         massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
 
-    directory = os.path.join(dataset_accession, folder_prefix)
+    if len(folder_prefix) > 0:
+        directory = os.path.join(dataset_accession, folder_prefix)
+    else:
+        directory = dataset_accession
 
     all_files = []
 
@@ -539,9 +542,12 @@ def get_all_files_in_dataset_folder_ftp(dataset_accession, folder_prefix, includ
         for filename in files:
             file_full_path = os.path.join(root, filename)
             if includefilemetadata:
-                print(file_full_path)
                 file_stats = massive_host.lstat(file_full_path)
-                all_files.append({"path": file_full_path, "timestamp" : int(file_stats.st_mtime)})
+                all_files.append({
+                    "path": file_full_path, 
+                    "timestamp" : int(file_stats.st_mtime),
+                    "size" : int(file_stats.st_size)
+                    })
             else:
                 all_files.append(file_full_path)
 

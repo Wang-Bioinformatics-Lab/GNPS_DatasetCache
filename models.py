@@ -9,6 +9,10 @@ class Filename(Model):
     collection = TextField(index=True)
     is_update = IntegerField() # This tells us if its an update, 0 for not, 1 for update
     update_name = TextField(index=True) # This tells us the update specifics
+    create_time = DateTimeField()
+    size = IntegerField()
+    spectra_ms1 = IntegerField(default=0)
+    spectra_ms2 = IntegerField(default=0)
 
     class Meta:
         database = db

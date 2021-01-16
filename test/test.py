@@ -22,3 +22,7 @@ def test_parsing():
         collection_name, is_update, update_name = compute_tasks._get_file_metadata(msv_path)
         print(collection_name, is_update, update_name)
 
+def test_dataset_files():
+    import utils
+    all_files = utils._get_massive_files("MSV000086709", acceptable_extensions=[])
+    print(all_files[0])

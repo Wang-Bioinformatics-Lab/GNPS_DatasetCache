@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from models import Filename
 
+import datetime
+
 # Setting up celery
 celery_instance = Celery('compute_tasks', backend='redis://redis', broker='redis://redis')
 
@@ -48,23 +50,29 @@ def populate_ftp():
     Filename.create_table(True)
 
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
-    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=30&offset=9001&query=").json()["row_data"]
+    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
     
     all_dataset_list.reverse()
 
     for dataset in all_dataset_list:
         accession = dataset["dataset"]
         print(accession)
-        all_dataset_files = utils._get_massive_files(accession)
+        all_dataset_files = utils._get_massive_files(accession, acceptable_extensions=[])
         
-        for filename in all_dataset_files:
+        for filedict in all_dataset_files:
             try:
+                filename = filedict["path"]
+                size = filedict["size"]
+                create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
+
                 collection_name, is_update, update_name =  _get_file_metadata(filename)
                 filename_db = Filename.get_or_create(filepath=filename, 
                                                     dataset=accession, 
                                                     collection=collection_name,
                                                     is_update=is_update,
-                                                    update_name=update_name)
+                                                    update_name=update_name,
+                                                    create_time=create_time,
+                                                    size=size)
             except:
                 pass
             
