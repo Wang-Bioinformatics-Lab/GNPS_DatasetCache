@@ -75,8 +75,6 @@ def populate_ftp():
                                                     size=size)
             except:
                 pass
-            
-
 
 celery_instance.conf.beat_schedule = {
     "populate_ftp": {
