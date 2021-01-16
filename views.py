@@ -24,7 +24,6 @@ def renderhomepage():
 
     # Counting number of datasets
     dataset_count = _count_number_of_datasets()
-    print(dataset_count)
 
     return render_template('homepage.html', 
                             db_count=db_count, 
