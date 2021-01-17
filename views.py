@@ -59,8 +59,13 @@ def testapi():
 
 @app.route('/refresh', methods=['GET'])
 def refresh():
-    compute_tasks.populate_ftp.delay()
+    compute_tasks.populate_all_datasets.delay()
     return "REFRESHING"
+
+@app.route('/recompute', methods=['GET'])
+def recompute():
+    compute_tasks.recompute.delay()
+    return "recompute"
 
 
 @app.route('/datasette/<path:path>',methods=['GET'])

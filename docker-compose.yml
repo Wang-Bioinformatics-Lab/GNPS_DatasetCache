@@ -15,6 +15,16 @@ services:
     command: /app/run_server.sh
     
 
+  gnps-datasetcache-beat:
+    build: .
+    volumes:
+      - ./database/:/app/database
+      - ./temp/:/app/temp
+    networks:
+      - default
+      - nginx-net
+    command: /app/run_worker_beat.sh
+
   gnps-datasetcache-worker:
     build: .
     volumes:
