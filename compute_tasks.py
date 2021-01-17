@@ -82,7 +82,6 @@ def populate_dataset(dataset_accession):
                                                 create_time=create_time,
                                                 size=size)
         except:
-            raise
             pass
 
 @celery_instance.task
