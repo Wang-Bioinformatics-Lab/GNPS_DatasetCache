@@ -8,6 +8,8 @@ from pathlib import Path
 from models import Filename
 
 import datetime
+import werkzeug
+
 
 # Setting up celery
 celery_instance = Celery('compute_tasks', backend='redis://redis', broker='redis://redis')
@@ -54,7 +56,7 @@ def populate_all_datasets():
     #all_dataset_list.reverse()
 
     all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp").json()["datasets"]
-    
+    all_dataset_list = all_dataset_list[:10] # DEBUG
 
     for dataset in all_dataset_list:
         accession = dataset["dataset"]
@@ -86,7 +88,39 @@ def populate_dataset(dataset_accession):
 
 @celery_instance.task
 def recompute():
-    print("XXXX")
+    for filename in Filename.select():
+        filepath = filename.filepath
+        _, file_extension = os.path.splitext(filepath)
+
+        # Skipping if we already have seen it
+        if filename.spectra_ms1 > 0 or filename.spectra_ms2 > 0:
+            continue
+
+        if file_extension == ".mzML":
+            print(filepath)
+            try:
+                # We are going to see if we can do anything with mzML files
+                ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
+
+                output_filename = os.path.join("temp", werkzeug.utils.secure_filename(ftp_path))
+                wget_cmd = "wget '{}' -O {} 2> /dev/null".format(ftp_path, output_filename)
+                os.system(wget_cmd)
+
+                # Calculate information
+                try:
+                    summmary_dict = utils._calculate_file_stats(output_filename)
+                    filename.spectra_ms1 = summary_dict["MS1s"]
+                    filename.spectra_ms2 = summary_dict["MS2s"]
+                    filename.instrument_model = summary_dict["Model"]
+                    filename.instrument_vendor = summary_dict["Vendor"]
+
+                    filename.save(force_insert=True)
+                except:
+                    pass
+
+                os.remove(output_filename)
+            except:
+                pass
 
 celery_instance.conf.beat_schedule = {
     "populate_all_datasets": {

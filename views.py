@@ -72,7 +72,7 @@ def recompute():
 def proxy(path):
     SITE_NAME = "http://datasette:8001/"
     if request.method=='GET':
-        resp = requests.get(f'{SITE_NAME}{path}')
+        resp = requests.get(f'{SITE_NAME}{path}', params=request.values)
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
