@@ -11,8 +11,13 @@ class Filename(Model):
     update_name = TextField(index=True) # This tells us the update specifics
     create_time = DateTimeField()
     size = IntegerField()
+
+    # Mass spec specific information about the files
     spectra_ms1 = IntegerField(default=0)
     spectra_ms2 = IntegerField(default=0)
+    instrument_vendor = TextField(index=True)
+    instrument_model = TextField(index=True)
+    
 
     class Meta:
         database = db
