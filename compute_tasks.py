@@ -47,7 +47,7 @@ def _get_file_metadata(msv_path):
     return collection_name, is_update, update_name
 
 
-@celery_instance.task
+@celery_instance.task(rate_limit='1/h')
 def populate_all_datasets():
     Filename.create_table(True)
 
@@ -56,7 +56,7 @@ def populate_all_datasets():
     #all_dataset_list.reverse()
 
     all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp").json()["datasets"]
-    all_dataset_list = all_dataset_list[:10] # DEBUG
+    #all_dataset_list = all_dataset_list[:10] # DEBUG
 
     for dataset in all_dataset_list:
         accession = dataset["dataset"]
@@ -92,7 +92,7 @@ def safe_cast(val, to_type, default=None):
     except (ValueError, TypeError):
         return default
 
-@celery_instance.task
+@celery_instance.task(rate_limit='1/h')
 def recompute_all_datasets():
     for filename in Filename.select():
         filepath = filename.filepath
