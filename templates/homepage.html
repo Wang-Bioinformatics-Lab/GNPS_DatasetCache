@@ -38,6 +38,12 @@
                 (( peak_db_count )) peak_db_count
                 <br>
                 (( dataset_count )) dataset_count
+                <br>
+                Total MS1 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms1%29%0D%0AFROM+filename">Query</a>
+                <br>
+                Total MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename">Query</a>
+                <br>
+
             </div>
             <div class="col-md-2" id=""></div>
         </div>
