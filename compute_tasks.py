@@ -50,7 +50,8 @@ def populate_ftp():
     Filename.create_table(True)
 
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
-    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
+    #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
+    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp").json()["datasets"]
     
     all_dataset_list.reverse()
 
@@ -81,4 +82,8 @@ celery_instance.conf.beat_schedule = {
         "task": "compute_tasks.populate_ftp",
         "schedule": 86400
     }
+}
+
+celery_instance.conf.task_routes = {
+    'compute_tasks.populate_ftp': {'queue': 'beat'},
 }
