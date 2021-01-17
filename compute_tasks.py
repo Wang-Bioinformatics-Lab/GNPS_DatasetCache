@@ -68,6 +68,13 @@ def populate_all_datasets():
 def populate_dataset(dataset_accession):
     print("processing", dataset_accession)
     all_dataset_files = utils._get_massive_files(dataset_accession, acceptable_extensions=[])
+
+    dataset_information = request.get("http://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/datasets/{}".format(dataset_accession)).json()
+    dataset_title = dataset_information["title"]
+    sample_type = "DEFAULT"
+
+    if "gnps" in dataset_title.lower():
+        data_type = "GNPS"
         
     for filedict in all_dataset_files:
         try:
@@ -77,7 +84,8 @@ def populate_dataset(dataset_accession):
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
             filename_db = Filename.get_or_create(filepath=filename, 
-                                                dataset=dataset_accession, 
+                                                dataset=dataset_accession,
+                                                sample_type=sample_type,
                                                 collection=collection_name,
                                                 is_update=is_update,
                                                 update_name=update_name,
