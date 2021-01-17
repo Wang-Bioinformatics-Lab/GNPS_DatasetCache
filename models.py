@@ -12,6 +12,7 @@ class Filename(Model):
     update_name = TextField(index=True) # This tells us the update specifics
     create_time = DateTimeField()
     size = IntegerField()
+    size_mb = IntegerField()
 
     # Types of Data
     sample_type = TextField() # Default, or GNPS

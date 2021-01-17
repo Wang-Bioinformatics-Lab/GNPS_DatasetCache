@@ -80,6 +80,7 @@ def populate_dataset(dataset_accession):
         try:
             filename = filedict["path"]
             size = filedict["size"]
+            size_mb = int( size / 1024 / 1024 )
             create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
@@ -90,7 +91,8 @@ def populate_dataset(dataset_accession):
                                                 is_update=is_update,
                                                 update_name=update_name,
                                                 create_time=create_time,
-                                                size=size)
+                                                size=size, 
+                                                size_mb=size_mb)
         except:
             pass
 
