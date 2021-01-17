@@ -15,9 +15,9 @@ class Filename(Model):
     # Mass spec specific information about the files
     spectra_ms1 = IntegerField(default=0)
     spectra_ms2 = IntegerField(default=0)
-    instrument_vendor = TextField(index=True)
-    instrument_model = TextField(index=True)
-    
+    instrument_vendor = TextField(index=True, default="")
+    instrument_model = TextField(index=True, default="")
+
 
     class Meta:
         database = db
