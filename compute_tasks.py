@@ -74,7 +74,7 @@ def populate_dataset(dataset_accession):
     sample_type = "DEFAULT"
 
     if "gnps" in dataset_title.lower():
-        data_type = "GNPS"
+        sample_type = "GNPS"
         
     for filedict in all_dataset_files:
         try:
