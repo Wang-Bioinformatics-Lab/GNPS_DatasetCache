@@ -69,7 +69,7 @@ def populate_dataset(dataset_accession):
     print("processing", dataset_accession)
     all_dataset_files = utils._get_massive_files(dataset_accession, acceptable_extensions=[])
 
-    dataset_information = request.get("http://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/datasets/{}".format(dataset_accession)).json()
+    dataset_information = requests.get("http://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/datasets/{}".format(dataset_accession)).json()
     dataset_title = dataset_information["title"]
     sample_type = "DEFAULT"
 
