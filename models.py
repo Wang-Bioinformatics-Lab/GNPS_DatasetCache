@@ -18,6 +18,5 @@ class Filename(Model):
     instrument_vendor = TextField(index=True, default="")
     instrument_model = TextField(index=True, default="")
 
-
     class Meta:
         database = db
