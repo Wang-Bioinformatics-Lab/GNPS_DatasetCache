@@ -44,6 +44,10 @@
                 Total MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename">Query</a>
                 <br>
                 Total size in mb for ccms_peak <a href='/datasette/database?sql=SELECT+SUM%28size_mb%29%0D%0AFROM+filename%0D%0AWHERE+collection%3D"ccms_peak"%0D%0A'>Query</a>
+                <br>
+                Counts of instrument vendor <a href='/datasette/database?sql=select+instrument_vendor%2C+count%28filepath%29+from+filename+group+by+instrument_vendor'>Query</a>
+                <br>
+                Counts of instrument model <a href='/datasette/database?sql=select+instrument_vendor%2C+count%28filepath%29+from+filename+group+by+instrument_model'>Query</a>
 
             </div>
             <div class="col-md-2" id=""></div>
