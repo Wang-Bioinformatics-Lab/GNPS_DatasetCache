@@ -86,41 +86,66 @@ def populate_dataset(dataset_accession):
         except:
             pass
 
+def safe_cast(val, to_type, default=None):
+    try:
+        return to_type(val)
+    except (ValueError, TypeError):
+        return default
+
 @celery_instance.task
-def recompute():
+def recompute_all_datasets():
     for filename in Filename.select():
         filepath = filename.filepath
         _, file_extension = os.path.splitext(filepath)
 
         # Skipping if we already have seen it
-        if filename.spectra_ms1 > 0 or filename.spectra_ms2 > 0:
+        try:
+            if filename.spectra_ms1 > 0 or filename.spectra_ms2 > 0:
+                continue
+        except:
             continue
 
         if file_extension == ".mzML":
-            print(filepath)
-            try:
-                # We are going to see if we can do anything with mzML files
-                ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
+            recompute_file.delay(filepath)
+            
+@celery_instance.task
+def recompute_file(filepath):
+    filename_db = Filename.get(Filename.filepath == filepath)
 
-                output_filename = os.path.join("temp", werkzeug.utils.secure_filename(ftp_path))
-                wget_cmd = "wget '{}' -O {} 2> /dev/null".format(ftp_path, output_filename)
-                os.system(wget_cmd)
+    # Skipping if we already have seen it
+    try:
+        if filename_db.spectra_ms1 > 0 or filename_db.spectra_ms2 > 0:
+            return
+    except:
+        return
 
-                # Calculate information
-                try:
-                    summmary_dict = utils._calculate_file_stats(output_filename)
-                    filename.spectra_ms1 = summary_dict["MS1s"]
-                    filename.spectra_ms2 = summary_dict["MS2s"]
-                    filename.instrument_model = summary_dict["Model"]
-                    filename.instrument_vendor = summary_dict["Vendor"]
+    print(filepath)
+    try:
+        # We are going to see if we can do anything with mzML files
+        ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
 
-                    filename.save(force_insert=True)
-                except:
-                    pass
+        output_filename = os.path.join("temp", werkzeug.utils.secure_filename(ftp_path))
+        wget_cmd = "wget '{}' -O {} 2> /dev/null".format(ftp_path, output_filename)
+        os.system(wget_cmd)
 
-                os.remove(output_filename)
-            except:
-                pass
+        # Calculate information
+        try:
+            summary_dict = utils._calculate_file_stats(output_filename)
+            
+            filename_db.spectra_ms1 = safe_cast(summary_dict["MS1s"], int, 0)
+            filename_db.spectra_ms2 = safe_cast(summary_dict["MS2s"], int, 0)
+            filename_db.instrument_model = summary_dict["Model"]
+            filename_db.instrument_vendor = summary_dict["Vendor"]
+
+            filename_db.save()
+        except:
+            pass
+
+        os.remove(output_filename)
+    except:
+        pass
+
+
 
 celery_instance.conf.beat_schedule = {
     "populate_all_datasets": {
@@ -131,6 +156,7 @@ celery_instance.conf.beat_schedule = {
 
 celery_instance.conf.task_routes = {
     'compute_tasks.populate_all_datasets': {'queue': 'beat'},
+    'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
     'compute_tasks.populate_dataset': {'queue': 'compute'},
-    'compute_tasks.recompute': {'queue': 'compute'},
+    'compute_tasks.recompute_file': {'queue': 'compute'}
 }

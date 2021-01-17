@@ -59,7 +59,6 @@ def _calculate_file_stats(local_filename):
             else:
                 response_dict[field] = "N/A"
     except:
-        raise
         pass
     
     return response_dict
