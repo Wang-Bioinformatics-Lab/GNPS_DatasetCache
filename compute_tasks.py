@@ -117,6 +117,8 @@ def recompute_all_datasets():
 
         if file_extension == ".mzML":
             recompute_file.delay(filepath)
+        if file_extension == ".mzXML":
+            recompute_file.delay(filepath)
             
 @celery_instance.task
 def recompute_file(filepath):
