@@ -162,11 +162,11 @@ def recompute_file(filepath):
 celery_instance.conf.beat_schedule = {
     "populate_all_datasets": {
         "task": "compute_tasks.populate_all_datasets",
-        "schedule": 86400
+        "schedule": 864000
     },
     "recompute_all_datasets": {
         "task": "compute_tasks.recompute_all_datasets",
-        "schedule": 120400
+        "schedule": 1204000
     }
 }
 
