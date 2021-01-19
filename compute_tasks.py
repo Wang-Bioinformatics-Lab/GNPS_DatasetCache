@@ -119,6 +119,14 @@ def recompute_all_datasets():
             recompute_file.delay(filepath)
         if file_extension == ".mzXML":
             recompute_file.delay(filepath)
+
+@celery_instance.task(rate_limit='1/h')
+def dump():
+    url = "http://datasette:8001/datasette/database/filename.csv?_stream=on&_size=max"
+    output_file = "./database/dump.csv"
+    wget_cmd = "wget '{}' -O {} 2> /dev/null".format(url, output_file)
+
+    os.system(wget_cmd)
             
 @celery_instance.task
 def recompute_file(filepath):
@@ -167,12 +175,17 @@ celery_instance.conf.beat_schedule = {
     "recompute_all_datasets": {
         "task": "compute_tasks.recompute_all_datasets",
         "schedule": 1204000
+    },
+    "dump": {
+        "task": "compute_tasks.dump",
+        "schedule": 864000
     }
 }
 
 celery_instance.conf.task_routes = {
     'compute_tasks.populate_all_datasets': {'queue': 'beat'},
     'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
+    'compute_tasks.dump': {'queue': 'beat'},
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }

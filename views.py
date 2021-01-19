@@ -67,6 +67,10 @@ def recompute():
     compute_tasks.recompute_all_datasets.delay()
     return "recompute"
 
+@app.route('/dump', methods=['GET'])
+def dump():
+    compute_tasks.dump.delay()
+    return "dump"
 
 @app.route('/datasette/<path:path>',methods=['GET'])
 def proxy(path):
