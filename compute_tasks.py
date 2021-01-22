@@ -102,6 +102,36 @@ def safe_cast(val, to_type, default=None):
     except (ValueError, TypeError):
         return default
 
+@celery_instance.task(rate_limit='1/m')
+def precompute_all_datasets():
+    import glob
+    import json
+    all_json_files = glob.glob("database/precompute/**/*.json", recursive=True)
+
+    for json_file in all_json_files:
+        try:
+            result_json = json.loads(open(json_file).read())
+            print(result_json)
+
+            filename = result_json["filename"].replace("/data/massive/", "")
+
+            filename_db = Filename.get(Filename.filepath == filename)
+            if filename_db.spectra_ms1 > 0 or filename_db.spectra_ms2 > 0:
+                continue
+
+            filename_db.spectra_ms1 = int(result_json["MS1s"])
+            filename_db.spectra_ms2 = int(result_json["MS2s"])
+            filename_db.instrument_vendor = int(result_json["Vendor"])
+            filename_db.instrument_model = int(result_json["Model"])
+
+            filename_db.save()
+
+            print("SAVED")
+        except:
+            pass
+
+        break
+
 @celery_instance.task(rate_limit='1/h')
 def recompute_all_datasets():
     for filename in Filename.select():
@@ -190,6 +220,7 @@ celery_instance.conf.task_routes = {
     'compute_tasks.populate_all_datasets': {'queue': 'beat'},
     'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
     'compute_tasks.dump': {'queue': 'beat'},
+    'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }

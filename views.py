@@ -62,10 +62,17 @@ def refresh():
     compute_tasks.populate_all_datasets.delay()
     return "refreshing"
 
+
+
 @app.route('/recompute', methods=['GET'])
 def recompute():
     compute_tasks.recompute_all_datasets.delay()
     return "recompute"
+
+@app.route('/precompute', methods=['GET'])
+def precompute():
+    compute_tasks.precompute_all_datasets.delay()
+    return "precompute"
 
 @app.route('/dump', methods=['GET'])
 def dump():
