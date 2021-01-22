@@ -10,8 +10,8 @@ Channel
 
 process get_information {
     publishDir "$baseDir/nf_output/summary", mode: 'copy'
-    //errorStrategy 'ignore'
-    echo true
+    errorStrategy 'ignore'
+    //echo true
       
     input:
     set fullPath, file(filename) from files_ch
