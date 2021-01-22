@@ -1,5 +1,5 @@
 run-local:
-	nextflow run calculate_spectra_detail.nf -resume
+	nextflow run calculate_spectra_detail.nf
 
 run-conda-cluster-test:
 	nextflow run -with-conda '/Users/miw023/miniconda3/envs/antismash' assemble_antismash.nf -resume --reads "/data/ccms-data/uploads/tferreir/ENA_reads/ERR3958150_{1,2}.fastq.gz"

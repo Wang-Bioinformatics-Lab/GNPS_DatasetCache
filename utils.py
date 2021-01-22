@@ -21,7 +21,7 @@ def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxm
 
     return all_files
 
-def _calculate_file_stats(local_filename):
+def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
     MS_precisions = {
         1 : 5e-6,
         2 : 20e-6,
@@ -31,7 +31,7 @@ def _calculate_file_stats(local_filename):
     response_dict = {}
 
     try:
-        cmd = ["./bin/msaccess", local_filename, "-x",  'run_summary delimiter=tab']
+        cmd = [msaccess_path, local_filename, "-x",  'run_summary delimiter=tab']
 
         my_env = os.environ.copy()
         my_env["LC_ALL"] = "C"
