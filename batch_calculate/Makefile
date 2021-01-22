@@ -8,7 +8,7 @@ run-conda-cluster-test-grid:
 	nextflow run -c cluster.config calculate_spectra_detail.nf '/Users/miw023/miniconda3/envs/ming_research' calculate_spectra_detail.nf -resume --files "/data/massive/MSV000084286/**/*.mzML"
 
 run-conda-cluster-full-mzml:
-	nextflow run -c cluster.config calculate_spectra_detail.nf -with-report "nf_report.html" -with-trace "nf_trace.html" -resume --files "/data/massive/**/*.mzML"
+	nextflow run -c cluster.config calculate_spectra_detail.nf -with-report "nf_report.html" -with-trace "nf_trace.html" -resume --files "/data/massive/public/**/*.mzML"
 
 run-conda-cluster-full-mzxml:
-	nextflow run -c cluster.config calculate_spectra_detail.nf -with-report "nf_report.html" -with-trace "nf_trace.html" -resume --files "/data/massive/**/*.mzXML"
+	nextflow run -c cluster.config calculate_spectra_detail.nf -with-report "nf_report.html" -with-trace "nf_trace.html" -resume --files "/data/massive/public/**/*.mzXML"

@@ -113,24 +113,21 @@ def precompute_all_datasets():
             result_json = json.loads(open(json_file).read())
             print(result_json)
 
-            filename = result_json["filename"].replace("/data/massive/", "")
+            filename = result_json["filename"].replace("/data/massive/public/", "").replace("/data/massive/", "")
 
             filename_db = Filename.get(Filename.filepath == filename)
             if filename_db.spectra_ms1 > 0 or filename_db.spectra_ms2 > 0:
                 continue
 
-            filename_db.spectra_ms1 = int(result_json["MS1s"])
-            filename_db.spectra_ms2 = int(result_json["MS2s"])
-            filename_db.instrument_vendor = int(result_json["Vendor"])
-            filename_db.instrument_model = int(result_json["Model"])
+            filename_db.spectra_ms1 = result_json["MS1s"]
+            filename_db.spectra_ms2 = result_json["MS2s"]
+            filename_db.instrument_vendor = result_json["Vendor"]
+            filename_db.instrument_model = result_json["Model"]
 
-            filename_db.save()
-
-            print("SAVED")
+            print("SAVED", filename_db.save())
         except:
+            print("ERROR")
             pass
-
-        break
 
 @celery_instance.task(rate_limit='1/h')
 def recompute_all_datasets():
