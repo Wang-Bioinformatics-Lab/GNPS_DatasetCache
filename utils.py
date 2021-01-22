@@ -6,6 +6,7 @@ import ftputil
 import pymzml
 import subprocess
 import io
+import glob
 import ming_proteosafe_library
 
 
@@ -20,6 +21,42 @@ def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxm
         all_files = [filename for filename in all_files if os.path.splitext(filename["path"])[1].lower() in acceptable_extensions]
 
     return all_files
+
+def _calculate_image(local_filename, output_image_filename, msaccess_path="./bin/msaccess"):
+    try:
+        cmd = [msaccess_path, local_filename, "-x",  'image width=1920 height=1080']
+
+        my_env = os.environ.copy()
+        my_env["LC_ALL"] = "C"
+
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=my_env)
+        out = proc.communicate()[0]
+
+        local_png = glob.glob("*png")[0]
+        os.rename(local_png, output_image_filename)
+    except:
+        pass
+    
+
+def _calculate_file_scanslist(local_filename, msaccess_path="./bin/msaccess"):
+    summary_df = pd.DataFrame()
+
+    try:
+        cmd = [msaccess_path, local_filename, "-x",  'spectrum_table delimiter=tab']
+
+        my_env = os.environ.copy()
+        my_env["LC_ALL"] = "C"
+
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=my_env)
+        out = proc.communicate()[0]
+
+        local_scans = glob.glob("*tsv")[0]
+        summary_df = pd.read_csv(local_scans, sep="\t")
+        os.remove(local_scans)
+    except:
+        pass
+
+    return summary_df
 
 def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
     MS_precisions = {

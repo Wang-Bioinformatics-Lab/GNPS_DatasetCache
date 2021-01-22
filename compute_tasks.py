@@ -111,8 +111,6 @@ def precompute_all_datasets():
     for json_file in all_json_files:
         try:
             result_json = json.loads(open(json_file).read())
-            print(result_json)
-
             filename = result_json["filename"].replace("/data/massive/public/", "").replace("/data/massive/", "")
 
             filename_db = Filename.get(Filename.filepath == filename)
@@ -124,9 +122,8 @@ def precompute_all_datasets():
             filename_db.instrument_vendor = result_json["Vendor"]
             filename_db.instrument_model = result_json["Model"]
 
-            print("SAVED", filename_db.save())
+            print("SAVED {}".format(filename))
         except:
-            print("ERROR")
             pass
 
 @celery_instance.task(rate_limit='1/h')
