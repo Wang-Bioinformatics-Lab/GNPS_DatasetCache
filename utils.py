@@ -28,11 +28,7 @@ def _calculate_file_stats(local_filename):
         3 : 20e-6
     }
 
-    run = pymzml.run.Reader(local_filename, MS_precisions=MS_precisions)
-    number_scans = run.get_spectrum_count()
-
     response_dict = {}
-    response_dict["Scans"] = number_scans
 
     try:
         cmd = ["./bin/msaccess", local_filename, "-x",  'run_summary delimiter=tab']

@@ -115,6 +115,10 @@ def recompute_all_datasets():
         except:
             continue
 
+        # Skipping for now if not GNPS
+        if filename.sample_type == "DEFAULT":
+            continue
+
         if file_extension == ".mzML":
             recompute_file.delay(filepath)
         if file_extension == ".mzXML":
