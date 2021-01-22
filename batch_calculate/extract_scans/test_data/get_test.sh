@@ -1,0 +1,1 @@
+wget -r ftp://massive.ucsd.edu/MSV000084494/ccms_peak/

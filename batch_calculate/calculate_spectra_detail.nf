@@ -12,7 +12,10 @@ process get_information {
     publishDir "$baseDir/nf_output/summary", mode: 'copy'
     errorStrategy 'ignore'
     //echo true
-      
+
+    maxForks 20
+
+
     input:
     set fullPath, file(filename) from files_ch
   
