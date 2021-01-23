@@ -24,16 +24,15 @@ if args.output_json is not None:
 
 # Producing output
 utils._calculate_image(args.input_filename, output_image, msaccess_path=args.msaccess_bin)
-summary_scans_df = utils._calculate_file_scanslist(args.input_filename, msaccess_path=args.msaccess_bin)
+summary_scans_df = utils._calculate_file_scanslist(args.input_filename, output_summary_scans, msaccess_path=args.msaccess_bin)
 run_metadata = utils._calculate_file_metadata(args.input_filename, msaccess_path=args.msaccess_bin)
 
-if len(summary_scans_df) > 0:
-    summary_scans_df.to_csv(output_summary_scans, sep='\t', index=False)
 
 summary_dict = utils._calculate_file_stats(args.input_filename, msaccess_path=args.msaccess_bin)
 summary_dict["filename"] = args.full_path
 summary_dict["png_filename"] = os.path.basename(output_image)
 summary_dict["scans_filename"] = os.path.basename(output_summary_scans)
+summary_dict["run_metadata"] = run_metadata
 
 with open(output_filename, 'w') as o:
     o.write(json.dumps(summary_dict))

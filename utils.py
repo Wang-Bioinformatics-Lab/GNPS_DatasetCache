@@ -38,7 +38,7 @@ def _calculate_image(local_filename, output_image_filename, msaccess_path="./bin
         pass
     
 
-def _calculate_file_scanslist(local_filename, msaccess_path="./bin/msaccess"):
+def _calculate_file_scanslist(local_filename, output_summary_scans, msaccess_path="./bin/msaccess"):
     summary_df = pd.DataFrame()
 
     try:
@@ -51,8 +51,7 @@ def _calculate_file_scanslist(local_filename, msaccess_path="./bin/msaccess"):
         out = proc.communicate()[0]
 
         local_scans = glob.glob("*tsv")[0]
-        summary_df = pd.read_csv(local_scans, sep="\t")
-        os.remove(local_scans)
+        os.rename(local_scans, output_summary_scans)
     except:
         pass
 
