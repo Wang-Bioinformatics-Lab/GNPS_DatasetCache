@@ -3,3 +3,5 @@ xmltodict
 requests
 ftputil
 pymzml
+werkzeug
+pyyaml

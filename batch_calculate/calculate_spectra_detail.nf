@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
  
-params.files = "$baseDir/test_data/*.mzML"
+params.files = "$baseDir/test_data/**/*.mzML"
 
 Channel
     .fromPath( params.files )
@@ -10,22 +10,21 @@ Channel
 
 process get_information {
     publishDir "$baseDir/nf_output/summary", mode: 'copy'
-    errorStrategy 'ignore'
-    //echo true
+    //errorStrategy 'ignore'
+    echo true
 
     maxForks 20
-
 
     input:
     set fullPath, file(filename) from files_ch
   
     output:
-    file("*.json") into contigs_ch
+    file("*.json")
+    file("*.png")
+    file("*.tsv")
   
     """
-    echo ${filename}
-    echo ${fullPath}
-    python $baseDir/bin/calculate_stats.py "${fullPath}" ${filename} $baseDir/bin/msaccess #--output_json ${filename}.json 
+    python $baseDir/bin/calculate_stats.py "${fullPath}" ${filename} $baseDir/bin/msaccess
     """
 
 }

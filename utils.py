@@ -8,7 +8,7 @@ import subprocess
 import io
 import glob
 import ming_proteosafe_library
-
+import yaml
 
 def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"]):
     massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
@@ -57,6 +57,30 @@ def _calculate_file_scanslist(local_filename, msaccess_path="./bin/msaccess"):
         pass
 
     return summary_df
+
+
+def _calculate_file_metadata(local_filename, msaccess_path="./bin/msaccess"):
+    metadata_dict = {}
+
+    try:
+        cmd = [msaccess_path, local_filename, "-x",  'metadata']
+
+        my_env = os.environ.copy()
+        my_env["LC_ALL"] = "C"
+
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=my_env)
+        out = proc.communicate()[0]
+
+        local_metadata = glob.glob("*metadata.txt")[0]
+        yaml_string = open(local_metadata).read()
+        yaml_string = yaml_string.replace("dataProcessingList", "dataProcessingList:")
+        metadata_dict = yaml.safe_load(yaml_string)
+        os.remove(local_metadata)
+    except:
+        pass
+
+    return metadata_dict
+
 
 def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
     MS_precisions = {
