@@ -23,6 +23,9 @@ class Filename(Model):
     instrument_vendor = TextField(index=True, default="")
     instrument_model = TextField(index=True, default="")
 
+    # Administrative
+    file_processed = TextField(default="No")
+
     # TODO: add max and minimum retention time
 
     class Meta:

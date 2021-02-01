@@ -170,15 +170,18 @@ def recompute_file(filepath):
     try:
         if filename_db.spectra_ms1 > 0 or filename_db.spectra_ms2 > 0:
             return
+        
+        if filename_db.file_processed != "No":
+            return
     except:
         return
+
+    # We are going to see if we can do anything with mzML files
+    ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
 
     output_json_filename = os.path.join("/app/database/json/", werkzeug.utils.secure_filename(ftp_path) + ".json")
     if os.path.exists(output_json_filename):
         return
-    
-    # We are going to see if we can do anything with mzML files
-    ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
 
     output_filename = os.path.join("temp", werkzeug.utils.secure_filename(ftp_path))
     wget_cmd = "wget '{}' -O {} 2> /dev/null".format(ftp_path, output_filename)
@@ -193,6 +196,7 @@ def recompute_file(filepath):
         filename_db.spectra_ms2 = safe_cast(summary_dict["MS2s"], int, 0)
         filename_db.instrument_model = summary_dict["Model"]
         filename_db.instrument_vendor = summary_dict["Vendor"]
+        filename_db.file_processed = "DONE"
 
         filename_db.save()
 
@@ -200,6 +204,9 @@ def recompute_file(filepath):
         with open(output_json_filename, "w") as o:
             o.write(json.dumps(summary_dict))
     except:
+        filename_db.file_processed = "FAILED"
+        filename_db.save()
+
         pass
     
     os.remove(output_filename)
