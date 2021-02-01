@@ -147,8 +147,8 @@ def recompute_all_datasets():
         acceptable_extensions = [".mzML", ".mzXML"]
 
         # We should relax this later
-        if filename.size_mb > 500 or filename.size_mb < 1:
-            continue
+        # if filename.size_mb > 500 or filename.size_mb < 1:
+        #     continue
 
         if file_extension in acceptable_extensions:
             recompute_file.delay(filepath)
@@ -171,6 +171,10 @@ def recompute_file(filepath):
             return
     except:
         return
+
+    output_json_filename = os.path.join("/app/database/json/", werkzeug.utils.secure_filename(ftp_path) + ".json")
+    if os.path.exists(output_json_filename):
+        return
     
     # We are going to see if we can do anything with mzML files
     ftp_path = "ftp://massive.ucsd.edu/{}".format(filepath)
@@ -192,7 +196,6 @@ def recompute_file(filepath):
         filename_db.save()
 
         # Trying to save the json information for future use
-        output_json_filename = os.path.join("/app/database/json/", werkzeug.utils.secure_filename(ftp_path) + ".json")
         with open(output_json_filename, "w") as o:
             o.write(json.dumps(summary_dict))
     except:
