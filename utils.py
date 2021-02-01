@@ -22,6 +22,19 @@ def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxm
 
     return all_files
 
+def get_all_run_information(local_filename, msaccess_path="./bin/msaccess"):
+    # Calculate information
+    summary_dict = _calculate_file_stats(local_filename)
+    
+    # Calculate metadata
+    run_metadata = _calculate_file_metadata(local_filename)
+
+    # Trying to save the json information for future use
+    summary_dict["run_metadata"] = run_metadata
+
+    return summary_dict
+
+
 def _calculate_image(local_filename, output_image_filename, msaccess_path="./bin/msaccess"):
     try:
         cmd = [msaccess_path, local_filename, "-x",  'image width=1920 height=1080']

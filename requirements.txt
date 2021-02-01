@@ -50,4 +50,5 @@ redis
 joblib
 bs4
 peewee
+pyyaml
 ftputil
