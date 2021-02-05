@@ -141,8 +141,8 @@ def recompute_all_datasets():
             continue
 
         # Skipping for now if not GNPS
-        if filename.sample_type == "DEFAULT":
-            continue
+        # if filename.sample_type == "DEFAULT":
+        #     continue
 
         acceptable_extensions = [".mzML", ".mzXML"]
         #acceptable_extensions = [".mzML"]
