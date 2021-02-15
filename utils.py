@@ -10,6 +10,29 @@ import glob
 import ming_proteosafe_library
 import yaml
 
+def _call_external_tool(cmd, timeout=90):
+    """This calls the external tool but also does proper cleanup by killing all child processes
+
+    Args:
+        cmd ([type]): [description]
+        timeout (int, optional): [description]. Defaults to 90.
+    """
+
+    try:
+        p = subprocess.Popen([cmd], shell=True)
+        p.wait(timeout=timeout)
+        return 0
+    except subprocess.TimeoutExpired:
+        # Killing off child and all other children
+        import psutil
+        parent_pid = p.pid
+        parent = psutil.Process(parent_pid)
+        for child in parent.children(recursive=True):
+            child.kill()
+        parent.kill()
+
+    return 1
+
 def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"]):
     massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
 
@@ -71,7 +94,7 @@ def _calculate_file_scanslist(local_filename, output_summary_scans, msaccess_pat
     return summary_df
 
 
-def _calculate_file_metadata(local_filename, msaccess_path="./bin/msaccess"):
+def _calculate_file_metadata(local_filename, msaccess_path="./bin/msaccess", timeout=90):
     metadata_dict = {}
 
     try:
@@ -81,6 +104,8 @@ def _calculate_file_metadata(local_filename, msaccess_path="./bin/msaccess"):
         my_env["LC_ALL"] = "C"
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=my_env)
+        proc.wait(timeout=timeout)
+
         out = proc.communicate()[0]
 
         local_metadata = glob.glob("*metadata.txt")[0]
@@ -88,13 +113,22 @@ def _calculate_file_metadata(local_filename, msaccess_path="./bin/msaccess"):
         yaml_string = yaml_string.replace("dataProcessingList", "dataProcessingList:")
         metadata_dict = yaml.safe_load(yaml_string)
         os.remove(local_metadata)
+    except subprocess.TimeoutExpired:
+        # Killing off child and all other children
+        import psutil
+        parent_pid = proc.pid
+        parent = psutil.Process(parent_pid)
+        for child in parent.children(recursive=True):
+            child.kill()
+        parent.kill()
+        raise
     except:
         pass
 
     return metadata_dict
 
 
-def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
+def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess", timeout=90):
     MS_precisions = {
         1 : 5e-6,
         2 : 20e-6,
@@ -110,6 +144,7 @@ def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
         my_env["LC_ALL"] = "C"
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=my_env)
+        proc.wait(timeout=timeout)
         out = proc.communicate()[0]
 
         all_lines = str(out).replace("\\t", "\t").split("\\n")
@@ -127,6 +162,16 @@ def _calculate_file_stats(local_filename, msaccess_path="./bin/msaccess"):
                 response_dict[field] = record[field]
             else:
                 response_dict[field] = "N/A"
+
+    except subprocess.TimeoutExpired:
+        # Killing off child and all other children
+        import psutil
+        parent_pid = proc.pid
+        parent = psutil.Process(parent_pid)
+        for child in parent.children(recursive=True):
+            child.kill()
+        parent.kill()
+        raise
     except:
         pass
     

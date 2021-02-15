@@ -4,6 +4,7 @@ import uuid
 import requests
 import utils
 import sys
+import subprocess
 from pathlib import Path
 from models import Filename
 
@@ -161,8 +162,10 @@ def dump():
     wget_cmd = "wget '{}' -O {} 2> /dev/null".format(url, output_file)
 
     os.system(wget_cmd)
+
+
             
-@celery_instance.task
+@celery_instance.task(time_limit=480)
 def recompute_file(filepath):
     filename_db = Filename.get(Filename.filepath == filepath)
 
