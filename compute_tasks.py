@@ -145,7 +145,7 @@ def recompute_all_datasets():
         # if filename.sample_type == "DEFAULT":
         #     continue
 
-        acceptable_extensions = [".mzML", ".mzXML"]
+        acceptable_extensions = [".mzML", ".mzXML", ".mzml", ".mzxml"]
         #acceptable_extensions = [".mzML"]
 
         # We should relax this later
