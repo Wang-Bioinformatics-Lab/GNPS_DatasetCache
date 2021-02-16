@@ -148,9 +148,9 @@ def recompute_all_datasets():
         acceptable_extensions = [".mzML", ".mzXML", ".mzml", ".mzxml"]
         #acceptable_extensions = [".mzML"]
 
-        # We should relax this later
-        # if filename.size_mb > 500 or filename.size_mb < 1:
-        #     continue
+        # Lets not handle HUGE files
+        if filename.size_mb > 2000:
+            continue
 
         if file_extension in acceptable_extensions:
             recompute_file.delay(filepath)
