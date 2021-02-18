@@ -49,7 +49,7 @@
                 <br>
                 Counts of instrument vendor <a href='/datasette/database?sql=select+instrument_vendor%2C+count%28filepath%29+from+filename+group+by+instrument_vendor'>Query</a>
                 <br>
-                Counts of instrument model <a href='/datasette/database?sql=select+instrument_vendor%2C+instrument_model%2C+count%28filepath%29+from+filename+group+by+instrument_model'>Query</a>
+                Counts of instrument model <a href='/datasette/database?sql=select+instrument_vendor%2C+instrument_model%2C+count%28filepath%29+from+filename+group+by+instrument_model%2C+instrument_vendor+order+by+instrument_vendor'>Query</a>
                 <br>
                 Remaining mzML Files <a href='/datasette/database/filename?_filter_column_1=file_processed&_filter_op_1=exact&_filter_value_1=No&_filter_column_2=filepath&_filter_op_2=endswith&_filter_value_2=.mzML&_filter_column_3=spectra_ms1&_filter_op_3=exact&_filter_value_3=0&_filter_column_4=spectra_ms2&_filter_op_4=exact&_filter_value_4=0&_filter_column=&_filter_op=exact&_filter_value=&_sort=filepath'>Query</a>
                 <br>

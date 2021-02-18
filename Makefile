@@ -13,3 +13,5 @@ attach:
 attach-worker:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-worker_1  /bin/bash
 
+zenodo_dump:
+	wget ""
