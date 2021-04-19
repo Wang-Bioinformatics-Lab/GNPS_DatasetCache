@@ -40,12 +40,12 @@ services:
       - nginx-net
     command: /app/run_worker_compute.sh
     
-  redis:
+  gnps-datasetcache-redis:
     image: redis
     networks:
       - default
 
-  datasette:
+  gnps-datasetcache-datasette:
     ports:
       - "5235:8001"
     image: datasetteproject/datasette
