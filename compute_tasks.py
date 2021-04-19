@@ -14,7 +14,7 @@ import json
 
 
 # Setting up celery
-celery_instance = Celery('compute_tasks', backend='redis://redis', broker='redis://redis')
+celery_instance = Celery('compute_tasks', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
 
 def _get_file_metadata(msv_path):
     """
@@ -157,7 +157,7 @@ def recompute_all_datasets():
 
 @celery_instance.task(rate_limit='1/h')
 def dump():
-    url = "http://datasette:8001/datasette/database/filename.csv?_stream=on&_size=max"
+    url = "http://gnps-datasetcache-datasette:8001/datasette/database/filename.csv?_stream=on&_size=max"
     output_file = "./database/dump.csv"
     wget_cmd = "wget '{}' -O {} 2> /dev/null".format(url, output_file)
 
