@@ -13,6 +13,11 @@ services:
       - default
       - nginx-net
     command: /app/run_server.sh
+    environment:
+      VIRTUAL_HOST: gnps-datasetcache.ucsd.edu
+      VIRTUAL_PORT: 5234
+      LETSENCRYPT_HOST: gnps-datasetcache.ucsd.edu
+      LETSENCRYPT_EMAIL: miw023@ucsd.edu
     
 
   gnps-datasetcache-beat:
