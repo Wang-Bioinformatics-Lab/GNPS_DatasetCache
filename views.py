@@ -81,7 +81,7 @@ def dump():
 
 @app.route('/datasette/<path:path>',methods=['GET'])
 def proxy(path):
-    SITE_NAME = "http://datasette:8001/"
+    SITE_NAME = "http://gnps-datasetcache-datasette:8001/"
     if request.method=='GET':
         resp = requests.get(f'{SITE_NAME}{path}', params=request.values)
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
