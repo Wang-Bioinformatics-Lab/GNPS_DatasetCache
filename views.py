@@ -91,7 +91,7 @@ def proxy(path):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    if request.path.startswith('/database/filename.csv'):
+    if request.path.startswith('/database/'):
         return redirect("/datasette" + request.full_path)
         
     # note that we set the 404 status explicitly
