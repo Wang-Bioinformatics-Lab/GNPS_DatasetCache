@@ -16,6 +16,7 @@ Pillow
 matplotlib
 Flask-Caching
 scipy
+pymzml
 pyteomics
 psims
 molmass
