@@ -33,12 +33,28 @@ def _call_external_tool(cmd, timeout=90):
 
     return 1
 
-def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"]):
-    massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
+def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"], method="ftp"):
 
-    all_files = ming_proteosafe_library.get_all_files_in_dataset_folder_ftp(dataset_accession, "", 
+    if method == "ftp":
+        massive_host = ftputil.FTPHost("massive.ucsd.edu", "anonymous", "")
+
+        all_files = ming_proteosafe_library.get_all_files_in_dataset_folder_ftp(dataset_accession, "", 
                                                                             includefilemetadata=True, 
                                                                             massive_host=massive_host)
+    else:
+        # we are using HTTP
+        from gnpsdata import publicdata
+        print("HTTP")
+
+        all_files = publicdata.get_massive_public_dataset_filelist(dataset_accession)
+
+        # Cleaning it up
+        for file_obj in all_files:
+            file_obj["path"] = file_obj["file_descriptor"][2:]
+
+            # Updating time to timestamp
+            file_obj["timestamp"] = file_obj["last_used_millis"] / 1000
+        
 
     if len(acceptable_extensions) > 0:
         all_files = [filename for filename in all_files if os.path.splitext(filename["path"])[1].lower() in acceptable_extensions]

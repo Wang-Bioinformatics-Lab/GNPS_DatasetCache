@@ -60,8 +60,15 @@ def testapi():
 @app.route('/refresh', methods=['GET'])
 def refresh():
     compute_tasks.populate_all_datasets.delay()
-    return "refreshing"
+    return "refreshing all datasets"
 
+@app.route('/refresh/dataset', methods=['GET'])
+def refresh_dataset():
+    dataset = request.args.get('dataset')
+
+    compute_tasks.populate_dataset.delay(dataset)
+    
+    return "refreshing dataset {}"
 
 
 @app.route('/recompute', methods=['GET'])

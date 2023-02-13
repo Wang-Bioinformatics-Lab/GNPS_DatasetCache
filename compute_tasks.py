@@ -66,6 +66,7 @@ def populate_all_datasets():
         populate_dataset.delay(accession)
         
 
+# Going to massive and index all files
 @celery_instance.task
 def populate_dataset(dataset_accession):
     print("processing", dataset_accession)
@@ -104,6 +105,7 @@ def safe_cast(val, to_type, default=None):
     except (ValueError, TypeError):
         return default
 
+# Reading the json files summarizing each file and inserting it into the database
 @celery_instance.task(rate_limit='1/m')
 def precompute_all_datasets():
     import glob
@@ -128,6 +130,7 @@ def precompute_all_datasets():
         except:
             pass
 
+# Finding the files that do not have a json, then we will actually do the expensive thing to compute it. 
 @celery_instance.task(rate_limit='1/h')
 def recompute_all_datasets():
     for filename in Filename.select():
@@ -155,6 +158,7 @@ def recompute_all_datasets():
         if file_extension in acceptable_extensions:
             recompute_file.delay(filepath)
 
+# Dumping the database to a file
 @celery_instance.task(rate_limit='1/h')
 def dump():
     url = "http://gnps-datasetcache-datasette:8001/datasette/database/filename.csv?_stream=on&_size=max"
@@ -164,7 +168,7 @@ def dump():
     os.system(wget_cmd)
 
 
-            
+# Recomputing a single file
 @celery_instance.task(time_limit=480)
 def recompute_file(filepath):
     filename_db = Filename.get(Filename.filepath == filepath)

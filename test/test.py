@@ -1,10 +1,11 @@
 import sys
 sys.path.insert(0, "..")
-import compute_tasks
 
 def test():
     import requests
     import requests_cache
+    import compute_tasks
+
     requests_cache.install_cache('demo_cache')
 
     from models import Filename
@@ -25,5 +26,16 @@ def test_parsing():
 def test_dataset_files():
     import utils
     all_files = utils._get_massive_files("MSV000086709", acceptable_extensions=[])
-    print(all_files[0])
+    print("FTP", len(all_files))
 
+    all_files = utils._get_massive_files("MSV000086709", acceptable_extensions=[], method="http")
+    print("HTTP", len(all_files))
+
+
+def main():
+    #test()
+    #test_parsing()
+    test_dataset_files()
+
+if __name__ == "__main__":
+    main()
