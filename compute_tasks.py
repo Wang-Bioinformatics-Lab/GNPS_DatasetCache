@@ -57,8 +57,9 @@ def populate_all_datasets():
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
     #all_dataset_list.reverse()
 
+    offset = 0
+    
     while True:
-        offset = 0
         url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
         r = requests.get(url)
 
@@ -73,6 +74,8 @@ def populate_all_datasets():
             accession = dataset["dataset"]
             print("Scheduling", accession)
             populate_dataset.delay(accession)
+
+        offset += 10
     
         
 
