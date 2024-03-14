@@ -14,4 +14,3 @@ bs4
 peewee
 pyyaml
 ftputil
-git+https://github.com/Wang-Bioinformatics-Lab/GNPSDataPackage.git@e9a5beee67b2774eb4e1690ef176a8d50f012c0f
