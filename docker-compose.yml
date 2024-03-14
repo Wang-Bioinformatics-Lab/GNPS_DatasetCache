@@ -52,7 +52,7 @@ services:
   gnps-datasetcache-datasette:
     ports:
       - "5235:5234" # This port selection of the internal port matching the external port of the web server is to get around a datasette bug
-    image: datasetteproject/datasette:0.58.1
+    image: datasetteproject/datasette:0.64.6
     depends_on:
       - "gnps-datasetcache-web"
     volumes:

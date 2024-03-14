@@ -58,7 +58,7 @@ def populate_all_datasets():
     #all_dataset_list.reverse()
 
     offset = 0
-    
+
     while True:
         url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
         r = requests.get(url)
@@ -258,11 +258,13 @@ celery_instance.conf.beat_schedule = {
 }
 
 celery_instance.conf.task_routes = {
+    # This is just for scheduling
     'compute_tasks.populate_all_datasets': {'queue': 'beat'},
     'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
     'compute_tasks.dump': {'queue': 'beat'},
     'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
     
+    # This is doing the actual work
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }
