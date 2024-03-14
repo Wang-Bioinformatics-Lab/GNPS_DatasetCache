@@ -15,14 +15,12 @@ services:
     restart: on-failure
     command: /app/run_server.sh
     environment:
-      VIRTUAL_HOST: gnps-datasetcache.ucsd.edu
-      #VIRTUAL_HOST: datasetcache.gnps2.org
+      VIRTUAL_HOST: datasetcache.gnps2.org
       VIRTUAL_PORT: 5000
-      LETSENCRYPT_HOST: gnps-datasetcache.ucsd.edu
-      #LETSENCRYPT_HOST: datasetcache.gnps2.org
-      #LETSENCRYPT_EMAIL: miw023@ucsd.edu
+      LETSENCRYPT_HOST: datasetcache.gnps2.org
       LETSENCRYPT_EMAIL: mwang87@gmail.com
-    
+  
+  # This does 
   gnps-datasetcache-beat:
     build: .
     volumes:

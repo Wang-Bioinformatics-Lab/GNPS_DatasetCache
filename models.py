@@ -4,7 +4,9 @@ from peewee import *
 from app import db
 
 class Filename(Model):
-    filepath = TextField(primary_key=True, index=True)
+    usi = TextField(primary_key=True, index=True)
+
+    filepath = TextField(index=True)
     dataset = TextField(index=True)
     collection = TextField(index=True)
 

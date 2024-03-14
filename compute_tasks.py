@@ -57,20 +57,30 @@ def populate_all_datasets():
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
     #all_dataset_list.reverse()
 
-    all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp").json()["datasets"]
-    #all_dataset_list = all_dataset_list[:10] # DEBUG
+    while True:
+        offset = 0
+        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
+        r = requests.get(url)
 
-    for dataset in all_dataset_list:
-        accession = dataset["dataset"]
-        print("Scheduling", accession)
-        populate_dataset.delay(accession)
+        try:
+            r.raise_for_status()
+        except:
+            break
+
+        dataset_list = r.json()["row_data"]
+
+        for dataset in dataset_list:
+            accession = dataset["dataset"]
+            print("Scheduling", accession)
+            populate_dataset.delay(accession)
+    
         
 
 # Going to massive and index all files
 @celery_instance.task
 def populate_dataset(dataset_accession):
     print("processing", dataset_accession)
-    all_dataset_files = utils._get_massive_files(dataset_accession, acceptable_extensions=[])
+    all_dataset_files = utils._get_massive_files(dataset_accession, acceptable_extensions=[], method="https")
 
     print("Found", len(all_dataset_files), "files")
 
@@ -89,7 +99,9 @@ def populate_dataset(dataset_accession):
             create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
-            filename_db = Filename.get_or_create(filepath=filename, 
+            filename_db = Filename.get_or_create(
+                                                usi=filename,
+                                                filepath=filename, 
                                                 dataset=dataset_accession,
                                                 sample_type=sample_type,
                                                 collection=collection_name,
@@ -110,6 +122,8 @@ def safe_cast(val, to_type, default=None):
 # Reading the json files summarizing each file and inserting it into the database
 @celery_instance.task(rate_limit='1/m')
 def precompute_all_datasets():
+    raise Exception("Need to Reimplement")
+
     import glob
     import json
     all_json_files = glob.glob("database/precompute/**/*.json", recursive=True)
@@ -135,6 +149,8 @@ def precompute_all_datasets():
 # Finding the files that do not have a json, then we will actually do the expensive thing to compute it. 
 @celery_instance.task(rate_limit='1/h')
 def recompute_all_datasets():
+    raise Exception("Need to Reimplement")
+
     for filename in Filename.select():
         filepath = filename.filepath
         _, file_extension = os.path.splitext(filepath)
@@ -173,6 +189,8 @@ def dump():
 # Recomputing a single file
 @celery_instance.task(time_limit=480)
 def recompute_file(filepath):
+    raise Exception("Need to Reimplement")
+
     filename_db = Filename.get(Filename.filepath == filepath)
 
     # Skipping if we already have seen it
@@ -241,6 +259,7 @@ celery_instance.conf.task_routes = {
     'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
     'compute_tasks.dump': {'queue': 'beat'},
     'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
+    
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }

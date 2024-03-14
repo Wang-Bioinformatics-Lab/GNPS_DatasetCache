@@ -62,7 +62,7 @@ def refresh():
     compute_tasks.populate_all_datasets.delay()
     return "refreshing all datasets"
 
-@app.route('/refresh/dataset', methods=['GET'])
+@app.route('/refresh/massivedataset', methods=['GET'])
 def refresh_dataset():
     dataset = request.args.get('dataset')
 
