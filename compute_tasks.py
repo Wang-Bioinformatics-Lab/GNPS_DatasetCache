@@ -57,6 +57,10 @@ def populate_all_datasets():
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
     #all_dataset_list.reverse()
 
+    # Populating MWB
+    populate_mwb_datasets.delay()
+
+    # Populating GNPS
     offset = 0
 
     while True:
@@ -77,7 +81,36 @@ def populate_all_datasets():
 
         offset += 10
     
-        
+@celery_instance.task
+def populate_mwb_datasets():
+    # We assume that we have already run the workflow
+
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/mwb_files_all.tsv", sep="\t")
+
+    for record in df.to_dict(orient="records"):
+        usi = record["USI_file"]
+        filename = record["FILENAME"]
+        dataset_accession = record["STUDY_ID"]
+        sample_type = "MWB"
+        collection_name = ""
+        is_update = 0
+        update_name = ""
+        create_time = datetime.datetime.now()
+        size = int(record["FILESIZE"])
+        size_mb = int( size / 1024 / 1024 )
+
+        filename_db = Filename.get_or_create(
+                                        usi=filename,
+                                        filepath=filename, 
+                                        dataset=dataset_accession,
+                                        sample_type=sample_type,
+                                        collection=collection_name,
+                                        is_update=is_update,
+                                        update_name=update_name,
+                                        create_time=create_time,
+                                        size=size, 
+                                        size_mb=size_mb)
 
 # Going to massive and index all files
 @celery_instance.task
@@ -265,6 +298,7 @@ celery_instance.conf.task_routes = {
     'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
     
     # This is doing the actual work
+    'compute_tasks.populate_mwb_datasets': {'queue': 'compute'},
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }
