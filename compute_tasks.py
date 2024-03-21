@@ -101,7 +101,7 @@ def populate_mwb_datasets():
         size_mb = int( size / 1024 / 1024 )
 
         filename_db = Filename.get_or_create(
-                                        usi=filename,
+                                        usi=usi,
                                         filepath=filename, 
                                         dataset=dataset_accession,
                                         sample_type=sample_type,
