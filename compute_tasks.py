@@ -11,6 +11,7 @@ from models import Filename
 import datetime
 import werkzeug
 import json
+import dotenv
 
 
 # Setting up celery
@@ -48,6 +49,16 @@ def _get_file_metadata(msv_path):
 
     return collection_name, is_update, update_name
 
+
+# Here we are going ot calculate the files
+@celery_instance.task()
+def calculate_mwb_mtbls_files():
+    # running the nextflow command
+    dotenv.load_dotenv()
+    nextflow_cmd = "cd /app/workflows && source activate nextflow && nextflow run /app/workflows/create_file_lists_workflow.nf --mtblstoken {}".format(os.environ["MTBLS_TOKEN"])
+
+    import subprocess
+    subprocess.Popen(nextflow_cmd, shell=True)
 
 @celery_instance.task(rate_limit='1/h')
 def populate_all_datasets():
@@ -298,7 +309,10 @@ celery_instance.conf.task_routes = {
     'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
     
     # This is doing the actual work
+    'compute_tasks.calculate_mwb_mtbls_files': {'queue': 'compute'},
     'compute_tasks.populate_mwb_datasets': {'queue': 'compute'},
+    
+
     'compute_tasks.populate_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }

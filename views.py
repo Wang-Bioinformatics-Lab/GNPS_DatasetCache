@@ -56,6 +56,12 @@ def testapi():
     return_obj["status"] = "success"
     return json.dumps(return_obj)
 
+@app.route('/calculatefilelists', methods=['GET'])
+def calcualtefilelist():
+    compute_tasks.calculate_mwb_mtbls_files.delay()
+    return "Calculating all File Lists"
+
+
 
 @app.route('/refresh', methods=['GET'])
 def refresh():
@@ -71,15 +77,15 @@ def refresh_dataset():
     return "refreshing dataset {}"
 
 
-@app.route('/recompute', methods=['GET'])
-def recompute():
-    compute_tasks.recompute_all_datasets.delay()
-    return "recompute"
+# @app.route('/recompute', methods=['GET'])
+# def recompute():
+#     compute_tasks.recompute_all_datasets.delay()
+#     return "recompute"
 
-@app.route('/precompute', methods=['GET'])
-def precompute():
-    compute_tasks.precompute_all_datasets.delay()
-    return "precompute"
+# @app.route('/precompute', methods=['GET'])
+# def precompute():
+#     compute_tasks.precompute_all_datasets.delay()
+#     return "precompute"
 
 @app.route('/dump', methods=['GET'])
 def dump():
