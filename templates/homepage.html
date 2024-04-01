@@ -19,7 +19,7 @@
         <div class="row">
           <div class="col-sm"></div>
           <div class="col-sm text-center">
-              <h2>GNPS Dataset Cache Summary</h2>
+              <h2>GNPS2 Dataset Cache Homepage</h2>
           </div>
           <div class="col-sm"></div>
         </div>
@@ -29,31 +29,12 @@
         <div class="row">
             <div class="col-md-2" id=""></div>
             <div class="col-md-2" id="">
-                (( db_count )) db count
                 <br>
-                (( raw_db_count )) raw_db_count
+                <a href="/calculatefilelists">MTBLS/MWB Calculate All File Lists </a>
                 <br>
-                (( ccms_peak_db_count )) ccms_peak_db_count
+                <a href="/refresh">Import all MSV datasets and injest pre-calculated File Lists from MTBLS/MWB</a>
                 <br>
-                (( peak_db_count )) peak_db_count
-                <br>
-                (( dataset_count )) dataset_count
-                <br>
-                Total MS1 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms1%29%0D%0AFROM+filename">Query</a>
-                <br>
-                Total MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename">Query</a>
-                <br>
-                Total GNPS MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename%0D%0AWHERE+sample_type%3D"GNPS"">Query</a>
-                <br>
-                Total size in mb for ccms_peak <a href='/datasette/database?sql=SELECT+SUM%28size_mb%29%0D%0AFROM+filename%0D%0AWHERE+collection%3D"ccms_peak"%0D%0A'>Query</a>
-                <br>
-                Counts of instrument vendor <a href='/datasette/database?sql=select+instrument_vendor%2C+count%28filepath%29+from+filename+group+by+instrument_vendor'>Query</a>
-                <br>
-                Counts of instrument model <a href='/datasette/database?sql=select+instrument_vendor%2C+instrument_model%2C+count%28filepath%29+from+filename+group+by+instrument_model%2C+instrument_vendor+order+by+instrument_vendor'>Query</a>
-                <br>
-                Remaining mzML Files <a href='/datasette/database/filename?_filter_column_1=file_processed&_filter_op_1=exact&_filter_value_1=No&_filter_column_2=filepath&_filter_op_2=endswith&_filter_value_2=.mzML&_filter_column_3=spectra_ms1&_filter_op_3=exact&_filter_value_3=0&_filter_column_4=spectra_ms2&_filter_op_4=exact&_filter_value_4=0&_filter_column=&_filter_op=exact&_filter_value=&_sort=filepath'>Query</a>
-                <br>
-
+                <a href="/refresh/massivedataset?dataset=XXX">Import specific MSV Dataset</a>
             </div>
             <div class="col-md-2" id="">
                 Created by Mingxun Wang

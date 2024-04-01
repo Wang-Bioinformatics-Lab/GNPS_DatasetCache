@@ -17,6 +17,11 @@ def _count_number_of_datasets():
 
 @app.route('/', methods=['GET'])
 def renderhomepage():
+    return render_template('homepage.html')
+
+
+@app.route('/stats', methods=['GET'])
+def renderstats():
     db_count = Filename.select().count()
     raw_db_count = Filename.select().where(Filename.collection == "raw").count()
     ccms_peak_db_count = Filename.select().where(Filename.collection == "ccms_peak").count()
@@ -25,7 +30,7 @@ def renderhomepage():
     # Counting number of datasets
     dataset_count = _count_number_of_datasets()
 
-    return render_template('homepage.html', 
+    return render_template('stats.html', 
                             db_count=db_count, 
                             raw_db_count=raw_db_count, 
                             ccms_peak_db_count=ccms_peak_db_count, 

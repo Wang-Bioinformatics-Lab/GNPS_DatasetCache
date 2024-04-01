@@ -1,0 +1,73 @@
+(% extends "layout.html" %)
+
+(% block content %)
+
+<script src="/static/datatables/datatables.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/static/datatables/datatables.min.css" crossorigin="anonymous">
+
+<style>
+    .dropzone { border: 2px dashed #0087F7; border-radius: 5px; background: white; margin: 20px}
+    .dropzone .dz-message { font-weight: 400; }
+    .dropzone .dz-message .note { font-size: 0.8em; font-weight: 200; display: block; margin-top: 1.4rem; }
+    .container-fluid { min-height: 100%; height: 100%;}
+</style>
+
+<div>
+    <div class="container-fluid">
+        <br>
+        <br>
+        <div class="row">
+          <div class="col-sm"></div>
+          <div class="col-sm text-center">
+              <h2>GNPS Dataset Cache Summary</h2>
+          </div>
+          <div class="col-sm"></div>
+        </div>
+
+        <br>
+
+        <div class="row">
+            <div class="col-md-2" id=""></div>
+            <div class="col-md-2" id="">
+                (( db_count )) db count
+                <br>
+                (( raw_db_count )) raw_db_count
+                <br>
+                (( ccms_peak_db_count )) ccms_peak_db_count
+                <br>
+                (( peak_db_count )) peak_db_count
+                <br>
+                (( dataset_count )) dataset_count
+                <br>
+                Total MS1 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms1%29%0D%0AFROM+filename">Query</a>
+                <br>
+                Total MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename">Query</a>
+                <br>
+                Total GNPS MS2 count <a href="/datasette/database?sql=SELECT+SUM%28spectra_ms2%29%0D%0AFROM+filename%0D%0AWHERE+sample_type%3D"GNPS"">Query</a>
+                <br>
+                Total size in mb for ccms_peak <a href='/datasette/database?sql=SELECT+SUM%28size_mb%29%0D%0AFROM+filename%0D%0AWHERE+collection%3D"ccms_peak"%0D%0A'>Query</a>
+                <br>
+                Counts of instrument vendor <a href='/datasette/database?sql=select+instrument_vendor%2C+count%28filepath%29+from+filename+group+by+instrument_vendor'>Query</a>
+                <br>
+                Counts of instrument model <a href='/datasette/database?sql=select+instrument_vendor%2C+instrument_model%2C+count%28filepath%29+from+filename+group+by+instrument_model%2C+instrument_vendor+order+by+instrument_vendor'>Query</a>
+                <br>
+                Remaining mzML Files <a href='/datasette/database/filename?_filter_column_1=file_processed&_filter_op_1=exact&_filter_value_1=No&_filter_column_2=filepath&_filter_op_2=endswith&_filter_value_2=.mzML&_filter_column_3=spectra_ms1&_filter_op_3=exact&_filter_value_3=0&_filter_column_4=spectra_ms2&_filter_op_4=exact&_filter_value_4=0&_filter_column=&_filter_op=exact&_filter_value=&_sort=filepath'>Query</a>
+                <br>
+
+            </div>
+            <div class="col-md-2" id="">
+                Created by Mingxun Wang
+            </div>
+        </div>
+
+        <div class="table table-striped">
+            <table id="library_list" class="display" width="100%"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+</script>
+
+
+(% endblock %) 
