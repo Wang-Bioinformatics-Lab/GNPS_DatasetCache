@@ -19,11 +19,10 @@ RUN pip install -U Celery
 
 RUN apt-get update && apt-get install -y git
 RUN pip install git+https://github.com/Wang-Bioinformatics-Lab/GNPSDataPackage.git
- 
-# Install nextflow as a new env
-RUN mamba create -n nextflow -c conda-forge -c bioconda nextflow==21.10.0
-
 RUN pip install python-dotenv
+
+# Install nextflow in the base env
+RUN conda install -c bioconda nextflow==21.10.0
 
 COPY . /app
 WORKDIR /app
