@@ -55,7 +55,7 @@ def _get_file_metadata(msv_path):
 def calculate_mwb_mtbls_files():
     # running the nextflow command
     dotenv.load_dotenv()
-    nextflow_cmd = "cd /app/workflows && source activate nextflow && nextflow run /app/workflows/create_file_lists_workflow.nf --mtblstoken {}".format(os.environ["MTBLS_TOKEN"])
+    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf --mtblstoken {} -c ./nextflow.config".format(os.environ["MTBLS_TOKEN"])
 
     import subprocess
     subprocess.Popen(nextflow_cmd, shell=True)
