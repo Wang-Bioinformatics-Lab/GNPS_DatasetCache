@@ -22,7 +22,7 @@ RUN pip install git+https://github.com/Wang-Bioinformatics-Lab/GNPSDataPackage.g
 RUN pip install python-dotenv
 
 # Install nextflow in the base env
-RUN conda install -c bioconda nextflow
+RUN mamba install -c bioconda nextflow
 
 COPY . /app
 WORKDIR /app
