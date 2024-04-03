@@ -87,7 +87,7 @@ def refresh_msv_dataset():
     dataset = request.args.get('dataset')
 
     compute_tasks.populate_massive_dataset.delay(dataset)
-    return "refreshing dataset {}"
+    return "refreshing dataset {}".format(dataset)
 
 
 # @app.route('/recompute', methods=['GET'])
