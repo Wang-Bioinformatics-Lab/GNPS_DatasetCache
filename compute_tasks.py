@@ -52,7 +52,7 @@ def _get_file_metadata(msv_path):
 
 # Here we are going ot calculate the files
 @celery_instance.task()
-def calculate_mwb_mtbls_files():
+def refresh_mwb_mtbls_files():
     # running the nextflow command
     dotenv.load_dotenv()
     nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf --mtblstoken {} -c ./nextflow.config".format(os.environ["MTBLS_TOKEN"])
@@ -61,15 +61,12 @@ def calculate_mwb_mtbls_files():
     subprocess.Popen(nextflow_cmd, shell=True)
 
 @celery_instance.task(rate_limit='1/h')
-def populate_all_datasets():
+def populate_all_massive():
     Filename.create_table(True)
 
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
     #all_dataset_list.reverse()
-
-    # Populating MWB
-    populate_mwb_datasets.delay()
 
     # Populating GNPS
     offset = 0
@@ -88,21 +85,23 @@ def populate_all_datasets():
         for dataset in dataset_list:
             accession = dataset["dataset"]
             print("Scheduling", accession)
-            populate_dataset.delay(accession)
+            populate_massive_dataset.delay(accession)
 
         offset += 10
     
 @celery_instance.task
-def populate_mwb_datasets():
+def populate_mwb_files():
     # We assume that we have already run the workflow
 
+    # addressing mwb
     import pandas as pd
     df = pd.read_csv("workflows/nf_output/mwb_files_all.tsv", sep="\t")
 
     for record in df.to_dict(orient="records"):
-        usi = record["USI_file"]
+        
         filename = record["FILENAME"]
         dataset_accession = record["STUDY_ID"]
+        usi = "mzspec:{}:{}".format(dataset_accession, record["USI_file"])
         sample_type = "MWB"
         collection_name = ""
         is_update = 0
@@ -111,21 +110,67 @@ def populate_mwb_datasets():
         size = int(record["FILESIZE"])
         size_mb = int( size / 1024 / 1024 )
 
-        filename_db = Filename.get_or_create(
-                                        usi=usi,
-                                        filepath=filename, 
-                                        dataset=dataset_accession,
-                                        sample_type=sample_type,
-                                        collection=collection_name,
-                                        is_update=is_update,
-                                        update_name=update_name,
-                                        create_time=create_time,
-                                        size=size, 
-                                        size_mb=size_mb)
+        try:
+            filename_db = Filename.get_or_create(
+                                            usi=usi,
+                                            filepath=filename, 
+                                            dataset=dataset_accession,
+                                            sample_type=sample_type,
+                                            collection=collection_name,
+                                            is_update=is_update,
+                                            update_name=update_name,
+                                            create_time=create_time,
+                                            size=size, 
+                                            size_mb=size_mb)
+        except:
+            pass
+
+@celery_instance.task
+def populate_mtbls_files():
+    # We assume that we have already run the workflow
+
+    # addressing mtbls
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.csv", sep=",")
+
+    for record in df.to_dict(orient="records"):
+        # cleaning up the paths
+        dataset_accession = record["study_id"]
+        filepath = record["file_path"]
+        filepath = filepath.replace("/nfs/public/rw/metabolomics/prod/data/studies/metadata-files/{}/".format(dataset_accession), "")
+
+
+        usi = "mzspec:{}:{}".format(dataset_accession, filepath)
+        filename = filepath
+        sample_type = "MTBLS"
+        collection_name = ""
+        is_update = 0
+        update_name = ""
+        create_time = datetime.datetime.now()
+        size = 0
+        size_mb = int( size / 1024 / 1024 )
+
+        try:
+            filename_db = Filename.get_or_create(
+                                            usi=usi,
+                                            filepath=filename, 
+                                            dataset=dataset_accession,
+                                            sample_type=sample_type,
+                                            collection=collection_name,
+                                            is_update=is_update,
+                                            update_name=update_name,
+                                            create_time=create_time,
+                                            size=size, 
+                                            size_mb=size_mb)
+        except:
+            pass
+
+
+
 
 # Going to massive and index all files
 @celery_instance.task
-def populate_dataset(dataset_accession):
+def populate_massive_dataset(dataset_accession):
     print("processing", dataset_accession)
     all_dataset_files = utils._get_massive_files(dataset_accession, acceptable_extensions=[], method="https")
 
@@ -144,6 +189,7 @@ def populate_dataset(dataset_accession):
             size = filedict["size"]
             size_mb = int( size / 1024 / 1024 )
             create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
+            usi = "mzspec:{}:{}".format(dataset_accession, filename)
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
             filename_db = Filename.get_or_create(
@@ -287,8 +333,8 @@ def recompute_file(filepath):
 
 
 celery_instance.conf.beat_schedule = {
-    "populate_all_datasets": {
-        "task": "compute_tasks.populate_all_datasets",
+    "populate_all_massive": {
+        "task": "compute_tasks.populate_all_massive",
         "schedule": 86400
     },
     "recompute_all_datasets": {
@@ -302,17 +348,18 @@ celery_instance.conf.beat_schedule = {
 }
 
 celery_instance.conf.task_routes = {
-    # This is just for scheduling
-    'compute_tasks.populate_all_datasets': {'queue': 'beat'},
-    'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
+    # This is just for scheduling and only one can run at a time
+    'compute_tasks.populate_all_massive': {'queue': 'beat'},
     'compute_tasks.dump': {'queue': 'beat'},
-    'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
+
+    # 'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
+    # 'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
     
     # This is doing the actual work
-    'compute_tasks.calculate_mwb_mtbls_files': {'queue': 'compute'},
-    'compute_tasks.populate_mwb_datasets': {'queue': 'compute'},
-    
+    'compute_tasks.refresh_mwb_mtbls_files': {'queue': 'compute'},
+    'compute_tasks.populate_mwb_files': {'queue': 'compute'},    
+    'compute_tasks.populate_mtbls_files': {'queue': 'compute'},    
 
-    'compute_tasks.populate_dataset': {'queue': 'compute'},
+    'compute_tasks.populate_massive_dataset': {'queue': 'compute'},
     'compute_tasks.recompute_file': {'queue': 'compute'}
 }

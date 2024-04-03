@@ -27,6 +27,7 @@ services:
       - ./database/:/app/database
       - ./temp/:/app/temp
       - ./workflows/:/app/workflows
+      - .env:/app/.env
     networks:
       - default
       - nginx-net

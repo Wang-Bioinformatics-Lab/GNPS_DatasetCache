@@ -61,24 +61,32 @@ def testapi():
     return_obj["status"] = "success"
     return json.dumps(return_obj)
 
-@app.route('/calculatefilelists', methods=['GET'])
-def calcualtefilelist():
-    compute_tasks.calculate_mwb_mtbls_files.delay()
-    return "Calculating all File Lists"
+@app.route('/refresh/mwbmtbls/files', methods=['GET'])
+def refresh_mw_files():
 
+    compute_tasks.refresh_mwb_mtbls_files.delay()
+    return "refresh_mwb_mtbls_files"
 
+@app.route('/refresh/mwb/import', methods=['GET'])
+def refresh_mwb_import():
+    compute_tasks.populate_mwb_files.delay()
+    return "populate_mwb_files"
 
-@app.route('/refresh', methods=['GET'])
-def refresh():
-    compute_tasks.populate_all_datasets.delay()
+@app.route('/refresh/mtbls/import', methods=['GET'])
+def refresh_mtbls_import():
+    compute_tasks.populate_mtbls_files.delay()
+    return "populate_mtbls_files"
+
+@app.route('/refresh/massive', methods=['GET'])
+def refresh_msv():
+    compute_tasks.populate_all_massive.delay()
     return "refreshing all datasets"
 
 @app.route('/refresh/massivedataset', methods=['GET'])
-def refresh_dataset():
+def refresh_msv_dataset():
     dataset = request.args.get('dataset')
 
-    compute_tasks.populate_dataset.delay(dataset)
-    
+    compute_tasks.populate_massive_dataset.delay(dataset)
     return "refreshing dataset {}"
 
 
