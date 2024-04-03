@@ -80,7 +80,7 @@ def refresh_mtbls_import():
 @app.route('/refresh/massive', methods=['GET'])
 def refresh_msv():
     compute_tasks.populate_all_massive.delay()
-    return "refreshing all datasets"
+    return "refreshing all massive datasets"
 
 @app.route('/refresh/massivedataset', methods=['GET'])
 def refresh_msv_dataset():
