@@ -101,7 +101,7 @@ def populate_mwb_files():
         
         filename = record["FILENAME"]
         dataset_accession = record["STUDY_ID"]
-        usi = "mzspec:{}:{}".format(dataset_accession, record["USI_file"])
+        usi = record["USI_file"]
         sample_type = "MWB"
         collection_name = ""
         is_update = 0
