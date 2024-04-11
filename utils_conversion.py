@@ -55,6 +55,13 @@ def download_mri(mri, conversion_cache_folder):
 
                 os.makedirs(os.path.dirname(target_specific_filepath), exist_ok=True)
 
+                # HACK TODO: fix MSV in filepath 
+                if mri_specific_filepath.startswith("MSV"):
+                    # splitting the mri
+                    mri_specific_splits = mri_specific_usi.split(":")
+                    mri_specific_usi = mri_specific_splits[0] + ":" + mri_specific_splits[1] + ":" + mri_specific_splits[2][13:]
+
+
                 # Now we need to figure out how to get this file given the MRI
                 url = "https://dashboard.gnps2.org/downloadlink"
                 params = {}
