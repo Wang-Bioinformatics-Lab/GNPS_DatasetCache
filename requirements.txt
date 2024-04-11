@@ -4,4 +4,4 @@ pandas
 requests
 tqdm
 Werkzeug
-Flask-Caching
+celery

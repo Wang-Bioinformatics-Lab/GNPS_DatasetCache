@@ -53,6 +53,25 @@ services:
     networks:
       - default
 
+  gnps-datasetcache-conversion:
+    build: .
+    volumes:
+      - ./database/:/app/database
+      - ./temp/:/app/temp
+      - ./workflows/:/app/workflows
+      - .env:/app/.env
+    networks:
+      - default
+      - nginx-net
+    restart: on-failure
+    command: /app/run_worker_conversion.sh
+    
+  gnps-datasetcache-redis:
+    image: redis
+    restart: on-failure
+    networks:
+      - default
+
   gnps-datasetcache-datasette:
     ports:
       - "5235:5234" # This port selection of the internal port matching the external port of the web server is to get around a datasette bug
