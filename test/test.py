@@ -32,10 +32,19 @@ def test_dataset_files():
     print("HTTP", len(all_files))
 
 
+def test_download_conversion():
+    import utils_conversion
+    
+    mri = "mzspec:MSV000091523:MSV000091523/raw/piper_01_RA1_1_1681.d"
+
+    utils_conversion.download_mri(mri, "./tmp")
+
+
 def main():
     #test()
     #test_parsing()
-    test_dataset_files()
+    #test_dataset_files()
+    test_download_conversion()
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 #Docker Compose
 server-compose-interactive:
-	docker-compose --compatibility build
+	docker-compose --compatibility build --parallel
 	docker-compose --compatibility up 
 
 server-compose-background:
