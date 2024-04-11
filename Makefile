@@ -1,6 +1,6 @@
 #Docker Compose
 server-compose-interactive:
-	docker-compose --compatibility build
+	docker-compose --compatibility build --parallel
 	docker-compose --compatibility up 
 
 server-compose-background:
@@ -16,3 +16,6 @@ attach:
 
 attach-worker:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-worker_1  /bin/bash
+
+attach-conversion:
+	docker exec -i -t gnps_datasetcache_gnps-datasetcache-conversion_1  /bin/bash

@@ -32,10 +32,21 @@ def test_dataset_files():
     print("HTTP", len(all_files))
 
 
+def test_download_conversion():
+    import utils_conversion
+    
+    #mri = "mzspec:MSV000091523:raw/piper_01_RA1_1_1681.d" # Bruker TIMS
+    #mri = "mzspec:MSV000094299:raw/RSC_LVManuscript_RawData/LV_Exp2/MS2-LV_Media_pos_2.d" # Agilent
+    mri = "mzspec:MSV000088206:raw/M1_T21_325_2000_positive.d" # Agilent
+
+    utils_conversion.download_mri(mri, "./tmp")
+
+
 def main():
     #test()
     #test_parsing()
-    test_dataset_files()
+    #test_dataset_files()
+    test_download_conversion()
 
 if __name__ == "__main__":
     main()

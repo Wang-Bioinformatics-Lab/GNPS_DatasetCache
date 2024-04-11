@@ -9,8 +9,12 @@ import csv
 import json
 import uuid
 import requests
+import glob
 
 import compute_tasks
+import tasks_conversion
+
+import utils_conversion
 
 def _count_number_of_datasets():
     return Filename.select().group_by(Filename.dataset).count()
@@ -114,6 +118,53 @@ def proxy(path):
         headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
     return response
+
+
+# This is for conversion
+@app.route('/convert/request', methods=['GET'])
+def start_convert():
+    # Get param mri
+    mri = request.args.get('mri')
+
+    tasks_conversion.convert_mri.delay(mri)
+    return "converting {}".format(mri)
+
+# This is for conversion
+@app.route('/convert/status', methods=['GET'])
+def status_convert():
+    # Get param mri
+    mri = request.args.get('mri')
+
+    # We need to check if the file is there
+    file_status = utils_conversion.status_mri(mri)
+
+    status_dict = {}
+    status_dict["status"] = file_status
+
+    return json.dumps(status_dict)
+
+@app.route('/convert/download', methods=['GET'])
+def download_convert():
+    # Get param mri
+    mri = request.args.get('mri')
+
+    # We need to check if the file is there
+    file_status = utils_conversion.status_mri(mri)
+
+    if file_status is True:
+        conversion_hashed_path = utils_conversion.determine_mri_path(mri)
+
+        conversion_folder = os.path.join(utils_conversion.CONVERSION_RESULT_FOLDER, conversion_hashed_path)
+
+        # lets see if there is an mzML file in that folder
+        mzml_files = glob.glob(os.path.join(conversion_folder, "*.mzML"))
+
+        if len(mzml_files) > 0:
+            return send_file(mzml_files[0], as_attachment=True)
+        else:
+            return "File not ready yet", 404
+    else:
+        return "File not ready yet", 404
 
 @app.errorhandler(404)
 def page_not_found(e):
