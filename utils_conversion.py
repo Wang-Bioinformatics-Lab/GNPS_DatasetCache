@@ -9,8 +9,15 @@ def download_mri(mri, conversion_cache_folder):
 
     # lets get the extension of the filename
     mri_splits = mri.split(":")
+    
+    dataset_accession = mri_splits[1]
 
     filename = mri_splits[2]
+    # if starts with MSV
+    if dataset_accession.startswith("MSV"):
+        if not filename.startswith(dataset_accession):
+            filename = os.path.join(dataset_accession, filename)
+
     raw_filename = os.path.basename(filename)
     extension = filename.split(".")[-1]
 
@@ -29,6 +36,8 @@ def download_mri(mri, conversion_cache_folder):
         url =  "https://datasetcache.gnps2.org/datasette/datasette/database/filename.json"
 
         r = requests.get(url, params=params)
+
+        print(params)
 
         if r.status_code == 200:
             # lets get all he files
@@ -53,8 +62,18 @@ def download_mri(mri, conversion_cache_folder):
 
                 r = requests.get(url, params=params)
 
-                with open(target_specific_filepath, "wb") as f:
-                    f.write(r.content)
+                # This gives us the download
+                if r.status_code == 200:
+                    download_url = r.text
+
+                    r = requests.get(download_url)
+
+                    if r.status_code == 200:
+                        with open(target_specific_filepath, "wb") as f:
+                            f.write(r.content)
+                    else:
+                        import sys
+                        print("Error downloading", download_url, file=sys.stderr)
 
     return path_to_full_raw_filename
 
@@ -64,17 +83,17 @@ def convert_mri(raw_filename, output_conversion_folder):
     cmd = None
 
     """Bruker Conversion"""
-    for extension == "d":
+    if extension == "d":
         output_filename = os.path.basename(raw_filename).replace(".d", ".mzML")
         cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
 
     """Thermo Conversion"""
-    for extension == "raw":
+    if extension == "raw":
         output_filename = os.path.basename(raw_filename).replace(".raw", ".mzML")
         cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
 
     """Sciex Conversion"""
-    for extension == "wiff":
+    if extension == "wiff":
         output_filename = os.path.basename(raw_filename).replace(".wiff", ".mzML")
         cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
 

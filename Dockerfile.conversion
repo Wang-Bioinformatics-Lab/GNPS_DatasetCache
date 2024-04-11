@@ -1,17 +1,20 @@
-FROM chambm/pwiz-skyline-i-agree-to-the-vendor-licenses:3.0.21354-9ee14c7
+#FROM chambm/pwiz-skyline-i-agree-to-the-vendor-licenses:3.0.21354-9ee14c7
+FROM chambm/pwiz-skyline-i-agree-to-the-vendor-licenses:3.0.24054-2352758
+
 ENV PATH="/root/miniconda3/bin:${PATH}"
 ARG PATH="/root/miniconda3/bin:${PATH}"
 
-RUN apt-get update -y
-RUN apt-get install -y build-essential zip unzip wget
+RUN apt-get update -y && apt-get install -y build-essential zip unzip wget
 
 # Install Mamba
 ENV CONDA_DIR /opt/conda
 RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O ~/miniforge.sh && /bin/bash ~/miniforge.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-COPY requirements.txt .
+COPY requirements* .
 RUN pip install -r requirements.txt
+RUN pip install -r requirements_unique.txt
+
 
 COPY . /app
 WORKDIR /app

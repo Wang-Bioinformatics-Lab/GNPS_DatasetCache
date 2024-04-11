@@ -16,3 +16,6 @@ attach:
 
 attach-worker:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-worker_1  /bin/bash
+
+attach-conversion:
+	docker exec -i -t gnps_datasetcache_gnps-datasetcache-conversion_1  /bin/bash
