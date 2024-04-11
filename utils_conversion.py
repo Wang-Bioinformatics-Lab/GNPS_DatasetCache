@@ -1,11 +1,37 @@
 import uuid
 import os
 import requests
+import glob
+
+CONVERSION_STAGING_FOLDER = "temp/conversion_staging"
+CONVERSION_RESULT_FOLDER =  "temp/conversion_output"
+
+def determine_mri_path(mri):
+    mri_hash = str(uuid.uuid3(uuid.NAMESPACE_DNS, mri))
+    prefix_hash = mri_hash[:2]
+
+    conversion_filefolder = os.path.join(prefix_hash, mri_hash)
+
+    return conversion_filefolder
+
+def status_mri(mri):
+    # We are going to check if the file is present, true or false
+
+    conversion_hashed_path = determine_mri_path(mri)
+    
+    conversion_folder = os.path.join(CONVERSION_RESULT_FOLDER, conversion_hashed_path)
+
+    # lets see if there is an mzML file in that folder
+    mzml_files = glob.glob(os.path.join(conversion_folder, "*.mzML"))
+
+    if len(mzml_files) > 0:
+        return True
+
+    return False
+
 
 def download_mri(mri, conversion_cache_folder):
-    mangled_string = str(uuid.uuid4())
-
-    conversion_folder = os.path.join(conversion_cache_folder, mangled_string)
+    conversion_folder = conversion_cache_folder
 
     # lets get the extension of the filename
     mri_splits = mri.split(":")
