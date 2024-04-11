@@ -11,6 +11,7 @@ import uuid
 import requests
 
 import compute_tasks
+import tasks_conversion
 
 def _count_number_of_datasets():
     return Filename.select().group_by(Filename.dataset).count()
@@ -114,6 +115,17 @@ def proxy(path):
         headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
     return response
+
+
+# This is for conversion
+@app.route('/convert/request', methods=['GET'])
+def start_convert():
+    # Get param mri
+    mri = request.args.get('mri')
+
+    tasks_conversion.convert_mri.delay(mri)
+    return "converting {}".format(mri)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
