@@ -116,51 +116,9 @@ def populate_all_massive():
 
         offset += 10
     
-@celery_instance.task
-def populate_mwb_files():
-    # We assume that we have already run the workflow
-
-    # addressing mwb
-    import pandas as pd
-    df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
-
-    for record in df.to_dict(orient="records"):
-        
-        filename = record["FILENAME"]
-        dataset_accession = record["STUDY_ID"]
-        usi = record["USI_file"]
-        sample_type = "MWB"
-        collection_name = ""
-        is_update = 0
-        update_name = ""
-        create_time = datetime.datetime.now()
-        size = int(record["FILESIZE"])
-        size_mb = int( size / 1024 / 1024 )
-
-        try:
-            filename_db = Filename.get_or_create(
-                                            usi=usi,
-                                            filepath=filename, 
-                                            dataset=dataset_accession,
-                                            sample_type=sample_type,
-                                            collection=collection_name,
-                                            is_update=is_update,
-                                            update_name=update_name,
-                                            create_time=create_time,
-                                            size=size, 
-                                            size_mb=size_mb)
-        except:
-            pass
-
-@celery_instance.task
-def populate_mtbls_files():
-    # We assume that we have already run the workflow
-
-    # addressing mtbls
-    import pandas as pd
-    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
-
-    for record in df.to_dict(orient="records"):
+def _import_mwb_mtbls_files(files_df, repo="MWB"):
+    
+    for record in files_df.to_dict(orient="records"):
         # cleaning up the paths
         dataset_accession = record["study_id"]
         filepath = record["file_path"]
@@ -169,7 +127,7 @@ def populate_mtbls_files():
 
         usi = "mzspec:{}:{}".format(dataset_accession, filepath)
         filename = filepath
-        sample_type = "MTBLS"
+        sample_type = repo
         collection_name = ""
         is_update = 0
         update_name = ""
@@ -192,7 +150,25 @@ def populate_mtbls_files():
         except:
             pass
 
+@celery_instance.task
+def populate_mwb_files():
+    # We assume that we have already run the workflow
 
+    # addressing mwb
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
+
+    _import_mwb_mtbls_files(df, repo="MWB")
+
+@celery_instance.task
+def populate_mtbls_files():
+    # We assume that we have already run the workflow
+
+    # addressing mtbls
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
+
+    _import_mwb_mtbls_files(df, repo="MTBLS")
 
 
 # Going to massive and index all files
