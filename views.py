@@ -10,6 +10,7 @@ import json
 import uuid
 import requests
 import glob
+import datetime
 
 import tasks_compute
 import tasks_conversion
@@ -40,15 +41,33 @@ def status():
     try:
         # getting last edit date of this file config.PATH_TO_MWB_FILES
         mwb_file_date = os.path.getmtime(config.PATH_TO_MWB_FILES)
-        status_dict["MWB_TIMESTAMP"] = str(mwb_file_date)
+        
+        # convert to datetime
+        dt_object = datetime.datetime.fromtimestamp(mwb_file_date)
+        
+        # convert to PST
+        dt_object = dt_object - datetime.timedelta(hours=7)
+
+        datetime_string = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+
+        status_dict["MWB_TIMESTAMP"] = datetime_string
     except:
         status_dict["MWB_TIMESTAMP"] = "Can't calculate"
+
 
     # getting mtbls file
     try:
         # getting last edit date of this file config.PATH_TO_MTBLS_FILES
         mtbls_file_date = os.path.getmtime(config.PATH_TO_MTBLS_FILES)
-        status_dict["MTBLS_TIMESTAMP"] = str(mtbls_file_date)
+
+        dt_object = datetime.datetime.fromtimestamp(mtbls_file_date)
+
+        # convert to PST
+        dt_object = dt_object - datetime.timedelta(hours=7)
+        
+        datetime_string = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+
+        status_dict["MTBLS_TIMESTAMP"] = datetime_string
     except:
         status_dict["MTBLS_TIMESTAMP"] = "Can't calculate"
     

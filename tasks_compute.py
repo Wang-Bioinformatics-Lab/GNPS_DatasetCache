@@ -64,7 +64,8 @@ def refresh_all():
             break
 
         # sleep
-        time.sleep(30)
+        print("WAITING FOR MWB TO FINISH", file=sys.stderr, flush=True)
+        time.sleep(60)
 
     # once these files are done, we want to populate
     populate_mwb_files.delay()
