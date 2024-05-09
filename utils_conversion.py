@@ -30,7 +30,7 @@ def status_mri(mri):
     return False
 
 
-def download_mri(mri, conversion_cache_folder):
+def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.gnps2.org"):
     conversion_folder = conversion_cache_folder
 
     # lets get the extension of the filename
@@ -59,18 +59,16 @@ def download_mri(mri, conversion_cache_folder):
         params["dataset__exact"] = mri_splits[1]
         params["filepath__startswith"] = filename
 
-        url =  "https://datasetcache.gnps2.org/datasette/datasette/database/filename.json"
+        url =  "{}/datasette/datasette/database/filename.json".format(cache_url)
 
         r = requests.get(url, params=params)
-
-        print(params)
 
         if r.status_code == 200:
             # lets get all he files
             file_rows = r.json()
 
             for file_row in file_rows:
-                print(file_row)
+                print("FILE ROW", file_row)
 
                 mri_specific_usi = file_row["usi"]
                 mri_specific_filepath = file_row["filepath"]
@@ -93,11 +91,15 @@ def download_mri(mri, conversion_cache_folder):
                 params = {}
                 params["usi"] = mri_specific_usi
 
+                print("GETTING Dashboard Download link")
+
                 r = requests.get(url, params=params)
 
                 # This gives us the download
                 if r.status_code == 200:
                     download_url = r.text
+
+                    print("DOWNLOAD LINK", download_url)
 
                     r = requests.get(download_url)
 

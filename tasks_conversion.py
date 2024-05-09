@@ -19,7 +19,7 @@ def convert_mri(mri):
 
     conversion_staging_filefolder = os.path.join(utils_conversion.CONVERSION_STAGING_FOLDER, conversion_hashed_path)
 
-    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder)
+    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")
 
     # We can now run msconvert on it
     conversion_output_filefolder = os.path.join(utils_conversion.CONVERSION_RESULT_FOLDER, conversion_hashed_path)
