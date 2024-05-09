@@ -32,11 +32,11 @@ process mtblsFiles {
     val x
 
     output:
-    file 'MetabolightsFilePaths_ALL.csv'
+    file 'MetabolightsFilePaths_ALL.tsv'
 
     """
     python $TOOL_FOLDER/getAllMetabolights_file_paths.py \
-    --output_filename "MetabolightsFilePaths_ALL.csv" \
+    --output_filename "MetabolightsFilePaths_ALL.tsv" \
     --user_token $params.mtblstoken
     """
 }

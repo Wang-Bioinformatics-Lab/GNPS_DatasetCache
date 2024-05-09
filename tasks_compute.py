@@ -12,10 +12,11 @@ import datetime
 import werkzeug
 import json
 import dotenv
+import time
 
 
 # Setting up celery
-celery_instance = Celery('compute_tasks', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
+celery_instance = Celery('tasks_compute', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
 
 def _get_file_metadata(msv_path):
     """
@@ -49,6 +50,32 @@ def _get_file_metadata(msv_path):
 
     return collection_name, is_update, update_name
 
+
+# Here we have a global refresh all that coordinates the logic
+@celery_instance.task()
+def refresh_all():
+    # we will call the tasks here as subtasks
+    mwb_mtbls_files_result = refresh_mwb_mtbls_files.delay()
+
+    # Wait for task to be done
+    while(True):
+        # checking if done
+        if mwb_mtbls_files_result.ready():
+            break
+
+        # sleep
+        print("WAITING FOR MWB TO FINISH", file=sys.stderr, flush=True)
+        time.sleep(60)
+
+    # once these files are done, we want to populate
+    populate_mwb_files.delay()
+    populate_mtbls_files.delay()
+
+    # we should consider doing MassIVE at the end
+    populate_all_massive.delay()
+
+
+    return ""
 
 # Here we are going ot calculate the files
 @celery_instance.task()
@@ -89,51 +116,9 @@ def populate_all_massive():
 
         offset += 10
     
-@celery_instance.task
-def populate_mwb_files():
-    # We assume that we have already run the workflow
-
-    # addressing mwb
-    import pandas as pd
-    df = pd.read_csv("workflows/nf_output/mwb_files_all.tsv", sep="\t")
-
-    for record in df.to_dict(orient="records"):
-        
-        filename = record["FILENAME"]
-        dataset_accession = record["STUDY_ID"]
-        usi = record["USI_file"]
-        sample_type = "MWB"
-        collection_name = ""
-        is_update = 0
-        update_name = ""
-        create_time = datetime.datetime.now()
-        size = int(record["FILESIZE"])
-        size_mb = int( size / 1024 / 1024 )
-
-        try:
-            filename_db = Filename.get_or_create(
-                                            usi=usi,
-                                            filepath=filename, 
-                                            dataset=dataset_accession,
-                                            sample_type=sample_type,
-                                            collection=collection_name,
-                                            is_update=is_update,
-                                            update_name=update_name,
-                                            create_time=create_time,
-                                            size=size, 
-                                            size_mb=size_mb)
-        except:
-            pass
-
-@celery_instance.task
-def populate_mtbls_files():
-    # We assume that we have already run the workflow
-
-    # addressing mtbls
-    import pandas as pd
-    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.csv", sep=",")
-
-    for record in df.to_dict(orient="records"):
+def _import_mwb_mtbls_files(files_df, repo="MWB"):
+    
+    for record in files_df.to_dict(orient="records"):
         # cleaning up the paths
         dataset_accession = record["study_id"]
         filepath = record["file_path"]
@@ -142,7 +127,7 @@ def populate_mtbls_files():
 
         usi = "mzspec:{}:{}".format(dataset_accession, filepath)
         filename = filepath
-        sample_type = "MTBLS"
+        sample_type = repo
         collection_name = ""
         is_update = 0
         update_name = ""
@@ -165,7 +150,25 @@ def populate_mtbls_files():
         except:
             pass
 
+@celery_instance.task
+def populate_mwb_files():
+    # We assume that we have already run the workflow
 
+    # addressing mwb
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
+
+    _import_mwb_mtbls_files(df, repo="MWB")
+
+@celery_instance.task
+def populate_mtbls_files():
+    # We assume that we have already run the workflow
+
+    # addressing mtbls
+    import pandas as pd
+    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
+
+    _import_mwb_mtbls_files(df, repo="MTBLS")
 
 
 # Going to massive and index all files
@@ -189,6 +192,10 @@ def populate_massive_dataset(dataset_accession):
             size = filedict["size"]
             size_mb = int( size / 1024 / 1024 )
             create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
+
+            # Cleaning up the MassIVE in the file path
+            filename = filename[13:]
+
             usi = "mzspec:{}:{}".format(dataset_accession, filename)
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
@@ -333,33 +340,36 @@ def recompute_file(filepath):
 
 
 celery_instance.conf.beat_schedule = {
-    "populate_all_massive": {
-        "task": "compute_tasks.populate_all_massive",
+    "refresh_all": {
+        "task": "tasks_compute.refresh_all",
         "schedule": 86400
     },
-    "recompute_all_datasets": {
-        "task": "compute_tasks.recompute_all_datasets",
-        "schedule": 1204000
-    },
+    # "recompute_all_datasets": {
+    #     "task": "tasks_compute.recompute_all_datasets",
+    #     "schedule": 1204000
+    # },
     "dump": {
-        "task": "compute_tasks.dump",
+        "task": "tasks_compute.dump",
         "schedule": 86400
     }
 }
 
 celery_instance.conf.task_routes = {
     # This is just for scheduling and only one can run at a time
-    'compute_tasks.populate_all_massive': {'queue': 'beat'},
-    'compute_tasks.dump': {'queue': 'beat'},
+    'tasks_compute.refresh_all': {'queue': 'beat'},
+    'tasks_compute.populate_all_massive': {'queue': 'beat'},
+    'tasks_compute.dump': {'queue': 'beat'},
 
-    # 'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
-    # 'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
+    # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
+    # 'tasks_compute.precompute_all_datasets': {'queue': 'beat'},
     
     # This is doing the actual work
-    'compute_tasks.refresh_mwb_mtbls_files': {'queue': 'compute'},
-    'compute_tasks.populate_mwb_files': {'queue': 'compute'},    
-    'compute_tasks.populate_mtbls_files': {'queue': 'compute'},    
+    'tasks_compute.refresh_mwb_mtbls_files': {'queue': 'compute'},
+    'tasks_compute.populate_mwb_files': {'queue': 'compute'},    
+    'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
 
-    'compute_tasks.populate_massive_dataset': {'queue': 'compute'},
-    'compute_tasks.recompute_file': {'queue': 'compute'}
+    'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
+
+    # DEPRECATED
+    'tasks_compute.recompute_file': {'queue': 'compute'}
 }

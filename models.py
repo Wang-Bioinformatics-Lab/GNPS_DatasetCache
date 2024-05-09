@@ -17,7 +17,7 @@ class Filename(Model):
     size_mb = IntegerField()
 
     # Types of Data
-    sample_type = TextField() # Default, or GNPS
+    sample_type = TextField(index=True) # Default, or GNPS, MTBLS, MWB
 
     # Mass spec specific information about the files
     spectra_ms1 = IntegerField(default=0)

@@ -5,3 +5,4 @@ requests
 tqdm
 Werkzeug
 celery
+celery_once==3.0.1

@@ -8,6 +8,7 @@ services:
     volumes:
       - ./database/:/app/database
       - ./temp/:/app/temp
+      - ./workflows/:/app/workflows:ro
       - ./logs/:/app/logs
     networks:
       - default
