@@ -12,6 +12,7 @@ import datetime
 import werkzeug
 import json
 import dotenv
+import time
 
 
 # Setting up celery
@@ -54,6 +55,24 @@ def _get_file_metadata(msv_path):
 @celery_instance.task()
 def refresh_all():
     # we will call the tasks here as subtasks
+    mwb_mtbls_files_result = refresh_mwb_mtbls_files.delay()
+
+    # Wait for task to be done
+    while(True):
+        # checking if done
+        if mwb_mtbls_files_result.ready():
+            break
+
+        # sleep
+        time.sleep(30)
+
+    # once these files are done, we want to populate
+    populate_mwb_files.delay()
+    populate_mtbls_files.delay()
+
+    # we should consider doing MassIVE at the end
+    populate_all_massive.delay()
+
 
     return ""
 
@@ -340,14 +359,14 @@ def recompute_file(filepath):
 
 
 celery_instance.conf.beat_schedule = {
-    "populate_all_massive": {
-        "task": "tasks_compute.populate_all_massive",
+    "refresh_all": {
+        "task": "tasks_compute.refresh_all",
         "schedule": 86400
     },
-    "recompute_all_datasets": {
-        "task": "tasks_compute.recompute_all_datasets",
-        "schedule": 1204000
-    },
+    # "recompute_all_datasets": {
+    #     "task": "tasks_compute.recompute_all_datasets",
+    #     "schedule": 1204000
+    # },
     "dump": {
         "task": "tasks_compute.dump",
         "schedule": 86400
@@ -356,9 +375,9 @@ celery_instance.conf.beat_schedule = {
 
 celery_instance.conf.task_routes = {
     # This is just for scheduling and only one can run at a time
+    'tasks_compute.refresh_all': {'queue': 'beat'},
     'tasks_compute.populate_all_massive': {'queue': 'beat'},
     'tasks_compute.dump': {'queue': 'beat'},
-    'tasks_compute.refresh_all': {'queue': 'beat'},
 
     # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
     # 'tasks_compute.precompute_all_datasets': {'queue': 'beat'},
@@ -369,5 +388,7 @@ celery_instance.conf.task_routes = {
     'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
 
     'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
+
+    # DEPRECATED
     'tasks_compute.recompute_file': {'queue': 'compute'}
 }
