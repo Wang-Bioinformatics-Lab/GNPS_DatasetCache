@@ -7,13 +7,24 @@ import glob
 import shutil
 import uuid
 import utils_conversion
+from celery_once import QueueOnce
+
 
 celery_instance = Celery('compute_tasks', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
 
+# Limiting the once queue for celery tasks, will give an error for idempotent tasks within an hour interval
+celery_instance.conf.ONCE = {
+  'backend': 'celery_once.backends.Redis',
+  'settings': {
+    'url': 'redis://gnps-datasetcache-redis:6379/0',
+    'default_timeout': 60 * 10,
+    'blocking': False,
+  }
+}
 
 # limit to 10 min
 @celery_instance.task(time_limit=600)
-def convert_mri(mri):
+def convert_mri(mri, base=QueueOnce):
     # hashing the mri to get a unique identifier using uuid
     conversion_hashed_path = utils_conversion.determine_mri_path(mri)
     conversion_staging_filefolder = os.path.join(utils_conversion.CONVERSION_STAGING_FOLDER, conversion_hashed_path)
