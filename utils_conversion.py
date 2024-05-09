@@ -42,11 +42,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
     dataset_accession = mri_splits[1]
 
     filename = mri_splits[2]
-    # if starts with MSV
-    if dataset_accession.startswith("MSV"):
-        if not filename.startswith(dataset_accession):
-            filename = os.path.join(dataset_accession, filename)
-
     raw_filename = os.path.basename(filename)
     extension = filename.split(".")[-1]
 
@@ -54,7 +49,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
 
     if extension == "d":
         # We need to go to the dataset cache and grab all the files
-        #https://datasetcache.gnps2.org/datasette/database/filename.json?_sort=usi&dataset__exact=MSV000093337&filepath__startswith=MSV000093337%2Fccms_parameters%2Fparams.xml
+        #https://datasetcache.gnps2.org/datasette/database/filename.json?_sort=usi&dataset__exact=MSV000093337&filepath__startswith=ccms_parameters%2Fparams.xml
         params = {}
         params["_shape"] = "array"
         params["dataset__exact"] = mri_splits[1]
@@ -83,13 +78,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                     continue
 
                 os.makedirs(os.path.dirname(target_specific_filepath), exist_ok=True)
-
-                # HACK TODO: fix MSV in filepath 
-                if mri_specific_filepath.startswith("MSV"):
-                    # splitting the mri
-                    mri_specific_splits = mri_specific_usi.split(":")
-                    mri_specific_usi = mri_specific_splits[0] + ":" + mri_specific_splits[1] + ":" + mri_specific_splits[2][13:]
-
 
                 # Now we need to figure out how to get this file given the MRI
                 url = "https://dashboard.gnps2.org/downloadlink"
@@ -136,12 +124,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 mri_specific_filepath = file_row["filepath"]
 
                 target_specific_filepath = os.path.join(conversion_folder, os.path.basename(mri_specific_filepath))
-
-                # HACK TODO: fix MSV in filepath 
-                if mri_specific_filepath.startswith("MSV"):
-                    # splitting the mri
-                    mri_specific_splits = mri_specific_usi.split(":")
-                    mri_specific_usi = mri_specific_splits[0] + ":" + mri_specific_splits[1] + ":" + mri_specific_splits[2][13:]
 
                 # Now we need to figure out how to get this file given the MRI
                 url = "https://dashboard.gnps2.org/downloadlink"

@@ -54,10 +54,10 @@ def convert_mri(mri):
 
     
     # is ia file or a folder
-    # if os.path.isdir(path_to_full_raw_filename):
-    #     shutil.rmtree(path_to_full_raw_filename)
-    # else:
-    #     os.remove(path_to_full_raw_filename)
+    if os.path.isdir(path_to_full_raw_filename):
+        shutil.rmtree(path_to_full_raw_filename)
+    else:
+        os.remove(path_to_full_raw_filename)
 
 
 celery_instance.conf.task_routes = {

@@ -192,6 +192,10 @@ def populate_massive_dataset(dataset_accession):
             size = filedict["size"]
             size_mb = int( size / 1024 / 1024 )
             create_time = datetime.datetime.fromtimestamp(filedict["timestamp"])
+
+            # Cleaning up the MassIVE in the file path
+            filename = filename[13:]
+
             usi = "mzspec:{}:{}".format(dataset_accession, filename)
 
             collection_name, is_update, update_name =  _get_file_metadata(filename)
