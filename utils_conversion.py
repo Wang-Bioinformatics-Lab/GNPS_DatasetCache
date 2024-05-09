@@ -33,6 +33,9 @@ def status_mri(mri):
 def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.gnps2.org"):
     conversion_folder = conversion_cache_folder
 
+    # making sure the conversion folder exists
+    os.makedirs(conversion_cache_folder, exist_ok=True)
+
     # lets get the extension of the filename
     mri_splits = mri.split(":")
     
@@ -126,6 +129,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
 
             r = requests.get(download_url)
 
+            # TODO: Maybe we should stream this? 
             if r.status_code == 200:
                 with open(path_to_full_raw_filename, "wb") as f:
                     f.write(r.content)

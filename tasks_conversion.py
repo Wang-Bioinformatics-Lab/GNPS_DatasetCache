@@ -26,10 +26,25 @@ def convert_mri(mri):
     path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")
 
     # We can now run msconvert on it
-    
-    utils_conversion.convert_mri(path_to_full_raw_filename, conversion_output_filefolder)
+    utils_conversion.convert_mri(path_to_full_raw_filename, conversion_staging_filefolder)
 
-    # TODO: clean up staging
+    # now that we converted, lets move it to the converted folder
+    converted_files = glob.glob(os.path.join(conversion_staging_filefolder, "*.mzML"))
+
+    if len(converted_files) == 1:
+        # making sure it exists
+        os.makedirs(conversion_output_filefolder, exist_ok=True)
+        output_filename = os.path.join(conversion_output_filefolder, os.path.basename(converted_files[0]))
+        
+        # moving over
+        shutil.move(converted_files[0], output_filename)
+
+    
+    # is ia file or a folder
+    # if os.path.isdir(path_to_full_raw_filename):
+    #     shutil.rmtree(path_to_full_raw_filename)
+    # else:
+    #     os.remove(path_to_full_raw_filename)
 
 
 celery_instance.conf.task_routes = {
