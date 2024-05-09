@@ -14,12 +14,12 @@ process mwbFiles {
     val x
 
     output:
-    file 'mwb_files_all.tsv'
+    file 'MWBFilePaths_ALL.tsv'
 
     """
     python $TOOL_FOLDER/getAllWorkbench_file_paths.py \
     --study_id ALL \
-    --output_path mwb_files_all.tsv
+    --output_path MWBFilePaths_ALL.tsv
     """
 }
 
