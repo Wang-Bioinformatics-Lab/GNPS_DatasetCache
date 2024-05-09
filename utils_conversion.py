@@ -53,13 +53,13 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
 
     if extension == "d":
         # We need to go to the dataset cache and grab all the files
-        #https://datasetcache.gnps2.org/datasette/datasette/database/filename.json?_sort=usi&dataset__exact=MSV000093337&filepath__startswith=MSV000093337%2Fccms_parameters%2Fparams.xml
+        #https://datasetcache.gnps2.org/datasette/database/filename.json?_sort=usi&dataset__exact=MSV000093337&filepath__startswith=MSV000093337%2Fccms_parameters%2Fparams.xml
         params = {}
         params["_shape"] = "array"
         params["dataset__exact"] = mri_splits[1]
         params["filepath__startswith"] = filename
 
-        url =  "{}/datasette/datasette/database/filename.json".format(cache_url)
+        url =  "{}/datasette/database/filename.json".format(cache_url)
 
         r = requests.get(url, params=params)
 
@@ -109,6 +109,29 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                     else:
                         import sys
                         print("Error downloading", download_url, file=sys.stderr)
+
+    elif extension == "raw":
+        # Now we need to figure out how to get this file given the MRI
+        url = "https://dashboard.gnps2.org/downloadlink"
+        params = {}
+        params["usi"] = mri
+
+        r = requests.get(url, params=params)
+
+        # This gives us the download
+        if r.status_code == 200:
+            download_url = r.text
+
+            print("DOWNLOAD LINK", download_url)
+
+            r = requests.get(download_url)
+
+            if r.status_code == 200:
+                with open(path_to_full_raw_filename, "wb") as f:
+                    f.write(r.content)
+            else:
+                import sys
+                print("Error downloading", download_url, file=sys.stderr)
 
     return path_to_full_raw_filename
 

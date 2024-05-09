@@ -34,13 +34,18 @@ def test_dataset_files():
 
 def test_download_conversion():
     import utils_conversion
-    
-    #mri = "mzspec:MSV000091523:raw/piper_01_RA1_1_1681.d" # Bruker TIMS
-    #mri = "mzspec:MSV000094299:raw/RSC_LVManuscript_RawData/LV_Exp2/MS2-LV_Media_pos_2.d" # Agilent
-    #mri = "mzspec:MSV000088206:raw/M1_T21_325_2000_positive.d" # Agilent
-    mri = "mzspec:MSV000093589:raw/Jugione_A.d" # Agilent
 
-    utils_conversion.download_mri(mri, "./tmp")
+    test_cases = []
+
+    #test_cases.append("mzspec:MSV000091523:raw/piper_01_RA1_1_1681.d") # Bruker TIMS
+    #test_cases.append("mzspec:MSV000094299:raw/RSC_LVManuscript_RawData/LV_Exp2/MS2-LV_Media_pos_2.d") # Agilent
+    #test_cases.append("mzspec:MSV000088206:raw/M1_T21_325_2000_positive.d") # Agilent
+    #test_cases.append("mzspec:MSV000093589:raw/Jugione_A.d") # Agilent
+    test_cases.append("mzspec:MTBLS108:FILES/Lut_A_220d.raw") # Raw
+
+    for test_mri in test_cases:
+        print(test_mri)
+        utils_conversion.download_mri(test_mri, "./tmp")
 
 
 def main():
