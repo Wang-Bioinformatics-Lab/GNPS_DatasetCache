@@ -11,18 +11,41 @@ import uuid
 import requests
 import glob
 
-import compute_tasks
+import tasks_compute
 import tasks_conversion
 
 import utils_conversion
+
+import config
 
 def _count_number_of_datasets():
     return Filename.select().group_by(Filename.dataset).count()
 
 @app.route('/', methods=['GET'])
 def renderhomepage():
+    # try getting file count
+    try:
+        db_count = Filename.select().count()
+    except:
+        pass
+
     return render_template('homepage.html')
 
+@app.route('/status.json', methods=['GET'])
+def status():
+    # Getting the status of everything
+    status_dict = {}
+
+    # Getting date of mwb file
+    try:
+        # getting last edit date of this file config.PATH_TO_MWB_FILES
+        mwb_file_date = os.path.getmtime(config.PATH_TO_MWB_FILES)
+        status_dict["MWB_TIMESTAMP"] = str(mwb_file_date)
+    except:
+        status_dict["MWB_TIMESTAMP"] = "Can't calculate"
+    
+
+    return json.dumps(status_dict)
 
 @app.route('/stats', methods=['GET'])
 def renderstats():
@@ -65,48 +88,54 @@ def testapi():
     return_obj["status"] = "success"
     return json.dumps(return_obj)
 
+
+# Admin force updates
+@app.route('/refresh/all', methods=['GET'])
+def refresh_all():
+    tasks_compute.refresh_all.delay()
+    return "refresh_all"
+
 @app.route('/refresh/mwbmtbls/files', methods=['GET'])
 def refresh_mw_files():
-
-    compute_tasks.refresh_mwb_mtbls_files.delay()
+    tasks_compute.refresh_mwb_mtbls_files.delay()
     return "refresh_mwb_mtbls_files"
 
 @app.route('/refresh/mwb/import', methods=['GET'])
 def refresh_mwb_import():
-    compute_tasks.populate_mwb_files.delay()
+    tasks_compute.populate_mwb_files.delay()
     return "populate_mwb_files"
 
 @app.route('/refresh/mtbls/import', methods=['GET'])
 def refresh_mtbls_import():
-    compute_tasks.populate_mtbls_files.delay()
+    tasks_compute.populate_mtbls_files.delay()
     return "populate_mtbls_files"
 
 @app.route('/refresh/massive', methods=['GET'])
 def refresh_msv():
-    compute_tasks.populate_all_massive.delay()
+    tasks_compute.populate_all_massive.delay()
     return "refreshing all massive datasets"
 
 @app.route('/refresh/massivedataset', methods=['GET'])
 def refresh_msv_dataset():
     dataset = request.args.get('dataset')
 
-    compute_tasks.populate_massive_dataset.delay(dataset)
+    tasks_compute.populate_massive_dataset.delay(dataset)
     return "refreshing dataset {}".format(dataset)
 
 
 # @app.route('/recompute', methods=['GET'])
 # def recompute():
-#     compute_tasks.recompute_all_datasets.delay()
+#     tasks_compute.recompute_all_datasets.delay()
 #     return "recompute"
 
 # @app.route('/precompute', methods=['GET'])
 # def precompute():
-#     compute_tasks.precompute_all_datasets.delay()
+#     tasks_compute.precompute_all_datasets.delay()
 #     return "precompute"
 
 @app.route('/dump', methods=['GET'])
 def dump():
-    compute_tasks.dump.delay()
+    tasks_compute.dump.delay()
     return "dump"
 
 @app.route('/datasette/<path:path>',methods=['GET'])

@@ -15,7 +15,7 @@ import dotenv
 
 
 # Setting up celery
-celery_instance = Celery('compute_tasks', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
+celery_instance = Celery('tasks_compute', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
 
 def _get_file_metadata(msv_path):
     """
@@ -49,6 +49,13 @@ def _get_file_metadata(msv_path):
 
     return collection_name, is_update, update_name
 
+
+# Here we have a global refresh all that coordinates the logic
+@celery_instance.task()
+def refresh_all():
+    # we will call the tasks here as subtasks
+
+    return ""
 
 # Here we are going ot calculate the files
 @celery_instance.task()
@@ -95,7 +102,7 @@ def populate_mwb_files():
 
     # addressing mwb
     import pandas as pd
-    df = pd.read_csv("workflows/nf_output/mwb_files_all.tsv", sep="\t")
+    df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
 
     for record in df.to_dict(orient="records"):
         
@@ -131,7 +138,7 @@ def populate_mtbls_files():
 
     # addressing mtbls
     import pandas as pd
-    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.csv", sep=",")
+    df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
 
     for record in df.to_dict(orient="records"):
         # cleaning up the paths
@@ -334,32 +341,33 @@ def recompute_file(filepath):
 
 celery_instance.conf.beat_schedule = {
     "populate_all_massive": {
-        "task": "compute_tasks.populate_all_massive",
+        "task": "tasks_compute.populate_all_massive",
         "schedule": 86400
     },
     "recompute_all_datasets": {
-        "task": "compute_tasks.recompute_all_datasets",
+        "task": "tasks_compute.recompute_all_datasets",
         "schedule": 1204000
     },
     "dump": {
-        "task": "compute_tasks.dump",
+        "task": "tasks_compute.dump",
         "schedule": 86400
     }
 }
 
 celery_instance.conf.task_routes = {
     # This is just for scheduling and only one can run at a time
-    'compute_tasks.populate_all_massive': {'queue': 'beat'},
-    'compute_tasks.dump': {'queue': 'beat'},
+    'tasks_compute.populate_all_massive': {'queue': 'beat'},
+    'tasks_compute.dump': {'queue': 'beat'},
+    'tasks_compute.refresh_all': {'queue': 'beat'},
 
-    # 'compute_tasks.recompute_all_datasets': {'queue': 'beat'},
-    # 'compute_tasks.precompute_all_datasets': {'queue': 'beat'},
+    # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
+    # 'tasks_compute.precompute_all_datasets': {'queue': 'beat'},
     
     # This is doing the actual work
-    'compute_tasks.refresh_mwb_mtbls_files': {'queue': 'compute'},
-    'compute_tasks.populate_mwb_files': {'queue': 'compute'},    
-    'compute_tasks.populate_mtbls_files': {'queue': 'compute'},    
+    'tasks_compute.refresh_mwb_mtbls_files': {'queue': 'compute'},
+    'tasks_compute.populate_mwb_files': {'queue': 'compute'},    
+    'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
 
-    'compute_tasks.populate_massive_dataset': {'queue': 'compute'},
-    'compute_tasks.recompute_file': {'queue': 'compute'}
+    'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
+    'tasks_compute.recompute_file': {'queue': 'compute'}
 }
