@@ -52,8 +52,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
 
     path_to_full_raw_filename = os.path.join(conversion_folder, raw_filename)
 
-    print(extension, "extension")
-
     if extension == "d":
         # We need to go to the dataset cache and grab all the files
         #https://datasetcache.gnps2.org/datasette/database/filename.json?_sort=usi&dataset__exact=MSV000093337&filepath__startswith=MSV000093337%2Fccms_parameters%2Fparams.xml
@@ -71,8 +69,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
             file_rows = r.json()
 
             for file_row in file_rows:
-                print("FILE ROW", file_row)
-
                 mri_specific_usi = file_row["usi"]
                 mri_specific_filepath = file_row["filepath"]
 
@@ -82,6 +78,9 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 # file relative file path to original filename
                 relative_filepath = os.path.relpath(mri_specific_filepath, filename)
                 target_specific_filepath = os.path.join(conversion_folder, raw_filename, relative_filepath)
+
+                if relative_filepath == ".":
+                    continue
 
                 os.makedirs(os.path.dirname(target_specific_filepath), exist_ok=True)
 
@@ -97,7 +96,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 params = {}
                 params["usi"] = mri_specific_usi
 
-                print("GETTING Dashboard Download link")
+                #print("GETTING Dashboard Download link")
 
                 r = requests.get(url, params=params)
 
@@ -105,7 +104,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 if r.status_code == 200:
                     download_url = r.text
 
-                    print("DOWNLOAD LINK", download_url)
+                    #print("DOWNLOAD LINK", download_url)
 
                     r = requests.get(download_url)
 
@@ -133,8 +132,6 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
             file_rows = r.json()
 
             for file_row in file_rows:
-                print("FILE ROW", file_row)
-
                 mri_specific_usi = file_row["usi"]
                 mri_specific_filepath = file_row["filepath"]
 
@@ -151,7 +148,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 params = {}
                 params["usi"] = mri_specific_usi
 
-                print("GETTING Dashboard Download link")
+                #print("GETTING Dashboard Download link")
 
                 r = requests.get(url, params=params)
 
@@ -159,7 +156,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                 if r.status_code == 200:
                     download_url = r.text
 
-                    print("DOWNLOAD LINK", download_url)
+                    #print("DOWNLOAD LINK", download_url)
 
                     r = requests.get(download_url)
 
@@ -168,7 +165,7 @@ def download_mri(mri, conversion_cache_folder, cache_url="https://datasetcache.g
                             f.write(r.content)
                     else:
                         import sys
-                        print("Error downloading", download_url, file=sys.stderr)
+                        #print("Error downloading", download_url, file=sys.stderr)
             
 
     elif extension == "raw":

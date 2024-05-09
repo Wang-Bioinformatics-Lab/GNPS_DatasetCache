@@ -182,7 +182,11 @@ def start_convert():
     # Get param mri
     mri = request.args.get('mri')
 
-    tasks_conversion.convert_mri.delay(mri)
+    try:
+        tasks_conversion.convert_mri.delay(mri)
+    except:
+        pass
+    
     return "converting {}".format(mri)
 
 # This is for conversion

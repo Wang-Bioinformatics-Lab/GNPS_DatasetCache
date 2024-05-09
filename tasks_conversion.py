@@ -23,8 +23,10 @@ celery_instance.conf.ONCE = {
 }
 
 # limit to 10 min
-@celery_instance.task(time_limit=600)
-def convert_mri(mri, base=QueueOnce):
+@celery_instance.task(time_limit=600, base=QueueOnce)
+def convert_mri(mri):
+    print("CONVERTING", mri)
+
     # hashing the mri to get a unique identifier using uuid
     conversion_hashed_path = utils_conversion.determine_mri_path(mri)
     conversion_staging_filefolder = os.path.join(utils_conversion.CONVERSION_STAGING_FOLDER, conversion_hashed_path)
