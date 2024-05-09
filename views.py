@@ -43,6 +43,14 @@ def status():
         status_dict["MWB_TIMESTAMP"] = str(mwb_file_date)
     except:
         status_dict["MWB_TIMESTAMP"] = "Can't calculate"
+
+    # getting mtbls file
+    try:
+        # getting last edit date of this file config.PATH_TO_MTBLS_FILES
+        mtbls_file_date = os.path.getmtime(config.PATH_TO_MTBLS_FILES)
+        status_dict["MTBLS_TIMESTAMP"] = str(mtbls_file_date)
+    except:
+        status_dict["MTBLS_TIMESTAMP"] = "Can't calculate"
     
 
     return json.dumps(status_dict)
