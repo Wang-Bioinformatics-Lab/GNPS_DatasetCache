@@ -11,8 +11,8 @@ import utils_conversion
 celery_instance = Celery('compute_tasks', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
 
 
-
-@celery_instance.task()
+# limit to 10 min
+@celery_instance.task(time_limit=600)
 def convert_mri(mri):
     # hashing the mri to get a unique identifier using uuid
     conversion_hashed_path = utils_conversion.determine_mri_path(mri)

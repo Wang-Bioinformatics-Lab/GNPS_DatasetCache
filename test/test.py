@@ -41,7 +41,8 @@ def test_download_conversion():
     #test_cases.append("mzspec:MSV000094299:raw/RSC_LVManuscript_RawData/LV_Exp2/MS2-LV_Media_pos_2.d") # Agilent
     #test_cases.append("mzspec:MSV000088206:raw/M1_T21_325_2000_positive.d") # Agilent
     #test_cases.append("mzspec:MSV000093589:raw/Jugione_A.d") # Agilent
-    test_cases.append("mzspec:MTBLS108:FILES/Lut_A_220d.raw") # Raw
+    #test_cases.append("mzspec:MTBLS108:FILES/Lut_A_220d.raw") # Raw
+    test_cases.append("mzspec:MSV000068694:datasets/68694/33/Raw_Files/FFE_wiff/FFE-187_wiff/P031006-72_Product.wiff") # Raw
 
     for test_mri in test_cases:
         print(test_mri)
