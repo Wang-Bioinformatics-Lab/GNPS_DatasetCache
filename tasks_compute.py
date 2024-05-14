@@ -7,7 +7,9 @@ import sys
 import subprocess
 from pathlib import Path
 from models import Filename
+from models import UniqueMRI
 
+import pandas as pd
 import datetime
 import werkzeug
 import json
@@ -73,6 +75,11 @@ def refresh_all():
 
     # we should consider doing MassIVE at the end
     populate_all_massive.delay()
+
+    # we should consider dumping and summarizing all unique MRIs
+    calculate_unique_file_usi.delay()
+
+    # finally we want to populate the output into the database
 
 
     return ""
@@ -150,12 +157,39 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
         except:
             pass
 
+def _import_unique_mri_files(files_df):
+    for record in files_df.to_dict(orient="records"):
+        try:
+            usi = record["usi"]
+            filepath = record["filepath"]
+            dataset_accession = record["dataset"]
+            sample_type = record["sample_type"]
+            collection_name = record["collection"]
+            is_update = record["is_update"]
+            update_name = record["update_name"]
+            create_time = record["create_time"]
+            size = record["size"]
+            size_mb = record["size_mb"]
+
+            uniquemir_db = UniqueMRI.get_or_create(
+                                            usi=usi,
+                                            filepath=filepath, 
+                                            dataset=dataset_accession,
+                                            sample_type=sample_type,
+                                            collection=collection_name,
+                                            is_update=is_update,
+                                            update_name=update_name,
+                                            create_time=create_time,
+                                            size=size, 
+                                            size_mb=size_mb)
+        except:
+            raise
+
 @celery_instance.task
 def populate_mwb_files():
     # We assume that we have already run the workflow
 
     # addressing mwb
-    import pandas as pd
     df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
 
     _import_mwb_mtbls_files(df, repo="MWB")
@@ -165,7 +199,6 @@ def populate_mtbls_files():
     # We assume that we have already run the workflow
 
     # addressing mtbls
-    import pandas as pd
     df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
 
     _import_mwb_mtbls_files(df, repo="MTBLS")
@@ -181,6 +214,15 @@ def calculate_unique_file_usi():
 
     return 0
 
+@celery_instance.task
+def populate_unique_file_usi():
+    # Reading the file and inserting into the database
+    
+    df = pd.read_csv("workflows/nf_output/all_unique_mri.tsv", sep="\t")
+
+    _import_unique_mri_files(df)
+
+    return 0
 
 # Going to massive and index all files
 @celery_instance.task
@@ -370,7 +412,7 @@ celery_instance.conf.task_routes = {
     'tasks_compute.refresh_all': {'queue': 'beat'},
     'tasks_compute.populate_all_massive': {'queue': 'beat'},
     # 'tasks_compute.dump': {'queue': 'beat'},
-    'tasks_compute.calculate_unique_file_usi': {'queue': 'beat'},
+    
 
     # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
     # 'tasks_compute.precompute_all_datasets': {'queue': 'beat'},
@@ -382,6 +424,9 @@ celery_instance.conf.task_routes = {
 
     'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
 
+    'tasks_compute.calculate_unique_file_usi': {'queue': 'compute'},
+    'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
+    
     # DEPRECATED
     'tasks_compute.recompute_file': {'queue': 'compute'}
 }

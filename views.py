@@ -154,6 +154,11 @@ def calculate_unique_file_usi():
     tasks_compute.calculate_unique_file_usi.delay()
     return "calculate_unique_file_usi"
 
+@app.route('/refresh/mriset/import', methods=['GET'])
+def populate_unique_file_usi():
+    tasks_compute.populate_unique_file_usi.delay()
+    return "populate_unique_file_usi"
+
 
 # @app.route('/recompute', methods=['GET'])
 # def recompute():
