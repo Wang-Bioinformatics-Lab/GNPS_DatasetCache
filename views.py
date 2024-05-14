@@ -91,6 +91,25 @@ def renderstats():
                             peak_db_count=peak_db_count,
                             dataset_count=dataset_count)
 
+@app.route('/stats.json', methods=['GET'])
+def renderstatsjson():
+    db_count = Filename.select().count()
+    gnps_files_count = Filename.select().where(Filename.sample_type == "GNPS").count()
+    mwb_files_count = Filename.select().where(Filename.sample_type == "MWB").count()
+    mtbls_files_count = Filename.select().where(Filename.sample_type == "MTBLS").count()
+
+    # Counting number of datasets
+    dataset_count = _count_number_of_datasets()
+
+    output_dict = {}
+    output_dict["files_count"] = db_count
+    output_dict["dataset_count"] = dataset_count
+    output_dict["gnps_files_count"] = dataset_count
+    output_dict["mwb_files_count"] = mwb_files_count
+    output_dict["mtbls_files_count"] = mtbls_files_count
+    
+    return json.dumps(output_dict)
+
 @app.route('/dataset/<accession>/files', methods=['GET'])
 def getfiles(accession):
     query_db = Filename.select().where(Filename.dataset == accession)
