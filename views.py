@@ -149,6 +149,11 @@ def refresh_msv_dataset():
     tasks_compute.populate_massive_dataset.delay(dataset)
     return "refreshing dataset {}".format(dataset)
 
+@app.route('/refresh/mriset', methods=['GET'])
+def calculate_unique_file_usi():
+    tasks_compute.calculate_unique_file_usi.delay()
+    return "calculate_unique_file_usi"
+
 
 # @app.route('/recompute', methods=['GET'])
 # def recompute():
@@ -175,8 +180,9 @@ def proxy(path):
         response = Response(resp.content, resp.status_code, headers)
     return response
 
-
+###############################
 # This is for conversion
+###############################
 @app.route('/convert/request', methods=['GET'])
 def start_convert():
     # Get param mri

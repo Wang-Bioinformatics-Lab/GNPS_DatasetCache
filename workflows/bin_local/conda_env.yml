@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8.8
+  - pandas
+  - pip
+  - pip:
+      - xmltodict
+      - requests
+      - vladiate
+      - bs4
+      - tqdm
+      - owlready2
