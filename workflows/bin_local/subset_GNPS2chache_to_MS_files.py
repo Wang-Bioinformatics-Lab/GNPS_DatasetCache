@@ -2,6 +2,14 @@ import pandas as pd
 import os
 import argparse
 
+
+def clean_mac_path(path):
+    if path.startswith("__MACOSX/") and '/._' in path:
+        # Remove the __MACOSX part and the ._ prefix from the filename
+        return path.replace("__MACOSX/", "").replace("/._", "/")
+    return path
+
+
 def prefer_extension(group):
     mask = group['extension'].isin(['mzml', 'mzxml'])
     if mask.any():
@@ -48,6 +56,8 @@ def filter_usi_extensions(df):
 def main(args):
     try:
         df = pd.read_csv(args.input_path, low_memory=False)
+        df['filename'] = df['filepath'].apply(lambda x: clean_mac_path(x))
+        df['usi'] = df['usi'].apply(lambda x: clean_mac_path(x))
         df_filtered = filter_usi_extensions(df)
         df_filtered.to_csv(args.output_path, sep='\t', index=False)
         print(f"Processed file saved to {args.output_path}")
