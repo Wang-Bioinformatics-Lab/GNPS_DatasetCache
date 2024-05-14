@@ -94,6 +94,7 @@ def renderstats():
 @app.route('/stats.json', methods=['GET'])
 def renderstatsjson():
     db_count = Filename.select().count()
+    massive_files_count = Filename.select().where(Filename.sample_type == "MASSIVE").count()
     gnps_files_count = Filename.select().where(Filename.sample_type == "GNPS").count()
     mwb_files_count = Filename.select().where(Filename.sample_type == "MWB").count()
     mtbls_files_count = Filename.select().where(Filename.sample_type == "MTBLS").count()

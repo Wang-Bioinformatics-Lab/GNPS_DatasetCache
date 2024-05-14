@@ -234,7 +234,7 @@ def populate_massive_dataset(dataset_accession):
 
     dataset_information = requests.get("http://massive.ucsd.edu/ProteoSAFe/proxi/v0.1/datasets/{}".format(dataset_accession)).json()
     dataset_title = dataset_information["title"]
-    sample_type = "DEFAULT"
+    sample_type = "MASSIVE"
 
     if "gnps" in dataset_title.lower():
         sample_type = "GNPS"
