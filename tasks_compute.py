@@ -80,7 +80,7 @@ def refresh_all():
     calculate_unique_file_usi.delay()
 
     # finally we want to populate the output into the database
-
+    populate_unique_file_usi.delay()
 
     return ""
 
