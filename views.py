@@ -106,7 +106,7 @@ def renderstatsjson():
     output_dict["files_count"] = db_count
     output_dict["dataset_count"] = dataset_count
     output_dict["massive_files_count"] = massive_files_count
-    output_dict["gnps_files_count"] = dataset_count
+    output_dict["gnps_files_count"] = gnps_files_count
     output_dict["mwb_files_count"] = mwb_files_count
     output_dict["mtbls_files_count"] = mtbls_files_count
     
