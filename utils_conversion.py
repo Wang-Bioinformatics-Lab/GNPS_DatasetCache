@@ -184,16 +184,16 @@ def convert_mri(raw_filename, output_conversion_folder):
     """Bruker/Agilent Conversion"""
     if extension == "d":
         output_filename = os.path.basename(raw_filename).replace(".d", ".mzML")
-        cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
+        cmd = 'wine msconvert "{}" --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir "{}" --outfile "{}"'.format(raw_filename, output_conversion_folder, output_filename)
 
     """Thermo Conversion"""
     if extension == "raw":
         output_filename = os.path.basename(raw_filename).replace(".raw", ".mzML")
-        cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
+        cmd = 'wine msconvert "{}" --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir "{}" --outfile "{}"'.format(raw_filename, output_conversion_folder, output_filename)
 
     """Sciex Conversion"""
     if extension == "wiff":
         output_filename = os.path.basename(raw_filename).replace(".wiff", ".mzML")
-        cmd = 'wine msconvert %s --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir %s --outfile %s' % (raw_filename, output_conversion_folder, output_filename)
+        cmd = 'wine msconvert "{}" --32 --zlib --ignoreUnknownInstrumentError --filter "peakPicking true 1-" --outdir "{}" --outfile "{}"'.format(raw_filename, output_conversion_folder, output_filename)
 
     os.system(cmd)
