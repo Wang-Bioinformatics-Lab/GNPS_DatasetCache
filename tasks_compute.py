@@ -424,7 +424,7 @@ celery_instance.conf.task_routes = {
 
     'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
 
-    'tasks_compute.calculate_unique_file_usi': {'queue': 'compute'},
+    'tasks_compute.calculate_unique_file_usi': {'queue': 'workflowsserialqueue'},
     'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
     
     # DEPRECATED
