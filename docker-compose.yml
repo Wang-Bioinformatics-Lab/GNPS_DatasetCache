@@ -47,6 +47,12 @@ services:
       - nginx-net
     restart: on-failure
     command: /app/run_worker_compute.sh
+    deploy:
+      resources:
+        limits:
+          memory: 64G
+
+
     
   gnps-datasetcache-redis:
     image: redis
