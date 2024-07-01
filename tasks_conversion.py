@@ -23,7 +23,7 @@ celery_instance.conf.ONCE = {
 }
 
 # limit to 10 min
-@celery_instance.task(time_limit=600, base=QueueOnce)
+@celery_instance.task(time_limit=1200, base=QueueOnce)
 def convert_mri(mri):
     print("Processing", mri)
 
