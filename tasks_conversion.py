@@ -25,7 +25,7 @@ celery_instance.conf.ONCE = {
 # limit to 10 min
 @celery_instance.task(time_limit=600, base=QueueOnce)
 def convert_mri(mri):
-    print("CONVERTING", mri)
+    print("Processing", mri)
 
     # hashing the mri to get a unique identifier using uuid
     conversion_hashed_path = utils_conversion.determine_mri_path(mri)
@@ -34,11 +34,14 @@ def convert_mri(mri):
 
     # Checking if this file already has been converted, if so, then we do nothing
     if utils_conversion.status_mri(mri) is True:
+        print("Already Converted", mri)
         return "Already Converted"
     
-    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")
+    print("Downloading", mri)
+    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")D
 
     # We can now run msconvert on it
+    print("Converting", mri, "with MSConvert")
     utils_conversion.convert_mri(path_to_full_raw_filename, conversion_staging_filefolder)
 
     # now that we converted, lets move it to the converted folder
@@ -53,7 +56,8 @@ def convert_mri(mri):
         shutil.move(converted_files[0], output_filename)
 
     
-    # is ia file or a folder
+    # is it a file or a folder
+    print("Cleaning up", mri)
     if os.path.isdir(path_to_full_raw_filename):
         shutil.rmtree(path_to_full_raw_filename)
     else:
