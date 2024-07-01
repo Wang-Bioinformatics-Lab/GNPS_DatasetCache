@@ -38,7 +38,7 @@ def convert_mri(mri):
         return "Already Converted"
     
     print("Downloading", mri)
-    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")D
+    path_to_full_raw_filename = utils_conversion.download_mri(mri, conversion_staging_filefolder, cache_url="http://gnps-datasetcache-datasette:5234")
 
     # We can now run msconvert on it
     print("Converting", mri, "with MSConvert")
