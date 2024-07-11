@@ -74,7 +74,7 @@ def status():
 
     # Getting the file lists stdout
     try:
-        with open("./workflows/nextflowstdout.log", 'r') as file:
+        with open("./workflows/nextflow_filelist_stdout.log", 'r') as file:
             nextflow_filelists_stdout_data = file.read()
         
         nextflow_filelists_stdout_modified = os.path.getmtime("./workflows/nextflow_filelist_stdout.log")
