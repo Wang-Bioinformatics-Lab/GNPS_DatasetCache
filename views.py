@@ -106,11 +106,11 @@ def status():
 
 @app.route('/status.trace', methods=['GET'])
 def status_trace():
-    return send_file("./workflows/filelist_trace.txt", cache_timeout=1)
+    return send_file("./workflows/trace.txt", cache_timeout=1)
 
 @app.route('/status.timeline', methods=['GET'])
 def status_timeline():
-    return send_file("./workflows/filelist_timeline.html", cache_timeout=1)
+    return send_file("./workflows/timeline.html", cache_timeout=1)
 
 
 @app.route('/stats', methods=['GET'])

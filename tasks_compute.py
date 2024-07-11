@@ -91,9 +91,6 @@ def refresh_mwb_mtbls_files():
     dotenv.load_dotenv()
     nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf \
         --mtblstoken {} -c ./nextflow.config \
-        --trace filelist_trace.txt \
-        --report filelist_report.html \
-        --timeline filelist_timeline.html \
         > nextflow_filelist_stdout.log".format(os.environ["MTBLS_TOKEN"])
 
     import subprocess
