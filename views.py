@@ -11,6 +11,7 @@ import uuid
 import requests
 import glob
 import datetime
+import pandas as pd
 
 import tasks_compute
 import tasks_conversion
@@ -70,9 +71,47 @@ def status():
         status_dict["MTBLS_TIMESTAMP"] = datetime_string
     except:
         status_dict["MTBLS_TIMESTAMP"] = "Can't calculate"
-    
 
+    # Getting the file lists stdout
+    try:
+        with open("./workflows/nextflowstdout.log", 'r') as file:
+            nextflow_filelists_stdout_data = file.read()
+        
+        nextflow_filelists_stdout_modified = os.path.getmtime("./workflows/nextflow_filelist_stdout.log")
+        nextflow_filelists_stdout_modified = str(pd.to_datetime(nextflow_filelists_stdout_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+    except:
+        nextflow_filelists_stdout_data = "No log file found"
+        nextflow_filelists_stdout_modified = "N/A"
+
+    # Getting the nextflow log
+    try:
+        with open("./workflows/.nextflow.log", 'r') as file:
+            nextflow_log_data = file.read()
+        
+        nextflow_log_modified = os.path.getmtime("./workflows/.nextflow.log")
+        nextflow_log_modified = str(pd.to_datetime(nextflow_log_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+    except:
+        nextflow_log_data = "No log file found"
+        nextflow_log_modified = "N/A"
+
+    # Writing the nextflow information dict
+    status_dict["nextflow"] = {
+        "nextflow_filelists_stdout_modified" : nextflow_filelists_stdout_modified,
+        "nextflow_filelists_stdout_data" : nextflow_filelists_stdout_data,
+        "nextflow_log_modified" : nextflow_log_modified,
+        "nextflow_log_data" : nextflow_log_data
+    }
+    
     return json.dumps(status_dict)
+
+@app.route('/status.trace', methods=['GET'])
+def status_trace():
+    return send_file("./workflows/filelist_trace.txt", cache_timeout=1)
+
+@app.route('/status.timeline', methods=['GET'])
+def status_timeline():
+    return send_file("./workflows/filelist_timeline.html", cache_timeout=1)
+
 
 @app.route('/stats', methods=['GET'])
 def renderstats():

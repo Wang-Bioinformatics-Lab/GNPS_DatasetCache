@@ -89,7 +89,12 @@ def refresh_all():
 def refresh_mwb_mtbls_files():
     # running the nextflow command
     dotenv.load_dotenv()
-    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf --mtblstoken {} -c ./nextflow.config".format(os.environ["MTBLS_TOKEN"])
+    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf \
+        --mtblstoken {} -c ./nextflow.config \
+        --trace filelist_trace.txt \
+        --report filelist_report.html \
+        --timeline filelist_timeline.html \
+        > nextflow_filelist_stdout.log".format(os.environ["MTBLS_TOKEN"])
 
     import subprocess
     subprocess.Popen(nextflow_cmd, shell=True)
@@ -207,7 +212,8 @@ def populate_mtbls_files():
 @celery_instance.task
 def calculate_unique_file_usi():
     # Lets run the workflow
-    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_distilled_usi.nf -c ./nextflow.config"
+    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_distilled_usi.nf -c \
+        ./nextflow.config"
 
     import subprocess
     subprocess.Popen(nextflow_cmd, shell=True)
