@@ -60,7 +60,7 @@ process getcachefiles {
 process processUniqueUSI {
     publishDir "./nf_output", mode: 'copy'
 
-    conda "$TOOL_FOLDER/conda_env.yml"
+    conda "$baseDir/bin_local/conda_env.yml"
 
     input:
     file 'all_dataset_files.csv'
@@ -69,7 +69,7 @@ process processUniqueUSI {
     file 'all_unique_mri.tsv'
 
     """
-    python $TOOL_FOLDER/subset_GNPS2chache_to_MS_files.py \
+    python $baseDir/bin_local/subset_GNPS2chache_to_MS_files.py \
     --input_path "all_dataset_files.csv" \
     --output_path all_unique_mri.tsv
     """
