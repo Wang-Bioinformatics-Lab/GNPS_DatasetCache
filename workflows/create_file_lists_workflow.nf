@@ -80,6 +80,10 @@ workflow {
     mwbFiles(1)
     mtblsFiles(1)
 
+    // TODO: We should include the GNPS/MassIVE unique files here
+
+    // TODO: Aggregate them together
+
     // Sometime these files are imported into the database
 
     // Making the unique MRI Files
