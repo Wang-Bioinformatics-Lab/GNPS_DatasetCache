@@ -76,6 +76,9 @@ process processUniqueUSI {
 }
 
 workflow {
+    // Getting Existing Files
+    all_dataset_files_ch = getcachefiles(1)
+
     // Getting all the files
     mwbFiles(1)
     mtblsFiles(1)
@@ -87,6 +90,5 @@ workflow {
     // Sometime these files are imported into the database
 
     // Making the unique MRI Files
-    all_dataset_files_ch = getcachefiles(1)
     processUniqueUSI(all_dataset_files_ch)
 }
