@@ -74,14 +74,14 @@ def status():
 
     # Getting the file lists stdout
     try:
-        with open("./workflows/nextflow_filelist_stdout.log", 'r') as file:
-            nextflow_filelists_stdout_data = file.read()
+        with open("./workflows/nextflow_stdout.log", 'r') as file:
+            nextflow_stdout_data = file.read()
         
-        nextflow_filelists_stdout_modified = os.path.getmtime("./workflows/nextflow_filelist_stdout.log")
-        nextflow_filelists_stdout_modified = str(pd.to_datetime(nextflow_filelists_stdout_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+        nextflow_stdout_modified = os.path.getmtime("./workflows/nextflow_stdout.log")
+        nextflow_stdout_modified = str(pd.to_datetime(nextflow_stdout_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
     except:
-        nextflow_filelists_stdout_data = "No log file found"
-        nextflow_filelists_stdout_modified = "N/A"
+        nextflow_stdout_data = "No log file found"
+        nextflow_stdout_modified = "N/A"
 
     # Getting the nextflow log
     try:
@@ -96,8 +96,8 @@ def status():
 
     # Writing the nextflow information dict
     status_dict["nextflow"] = {
-        "nextflow_filelists_stdout_modified" : nextflow_filelists_stdout_modified,
-        "nextflow_filelists_stdout_data" : nextflow_filelists_stdout_data,
+        "nextflow_stdout_modified" : nextflow_stdout_modified,
+        "nextflow_stdout_data" : nextflow_stdout_data,
         "nextflow_log_modified" : nextflow_log_modified,
         "nextflow_log_data" : nextflow_log_data
     }
@@ -208,11 +208,6 @@ def refresh_msv_dataset():
 
     tasks_compute.populate_massive_dataset.delay(dataset)
     return "refreshing dataset {}".format(dataset)
-
-@app.route('/refresh/mriset', methods=['GET'])
-def calculate_unique_file_usi():
-    tasks_compute.calculate_unique_file_usi.delay()
-    return "calculate_unique_file_usi"
 
 @app.route('/refresh/mriset/import', methods=['GET'])
 def populate_unique_file_usi():

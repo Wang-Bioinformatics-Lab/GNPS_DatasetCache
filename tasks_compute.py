@@ -76,9 +76,6 @@ def refresh_all():
     # we should consider doing MassIVE at the end
     populate_all_massive.delay()
 
-    # we should consider dumping and summarizing all unique MRIs
-    calculate_unique_file_usi.delay()
-
     # finally we want to populate the output into the database
     populate_unique_file_usi.delay()
 
@@ -91,7 +88,7 @@ def refresh_mwb_mtbls_files():
     dotenv.load_dotenv()
     nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf \
         --mtblstoken {} -c ./nextflow.config \
-        > nextflow_filelist_stdout.log".format(os.environ["MTBLS_TOKEN"])
+        > nextflow_stdout.log".format(os.environ["MTBLS_TOKEN"])
 
     import subprocess
     subprocess.Popen(nextflow_cmd, shell=True)
@@ -204,18 +201,6 @@ def populate_mtbls_files():
     df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
 
     _import_mwb_mtbls_files(df, repo="MTBLS")
-
-
-@celery_instance.task
-def calculate_unique_file_usi():
-    # Lets run the workflow
-    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_distilled_usi.nf -c \
-        ./nextflow.config"
-
-    import subprocess
-    subprocess.Popen(nextflow_cmd, shell=True)
-
-    return 0
 
 @celery_instance.task
 def populate_unique_file_usi():
@@ -427,7 +412,6 @@ celery_instance.conf.task_routes = {
 
     'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
 
-    'tasks_compute.calculate_unique_file_usi': {'queue': 'compute'},
     'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
     
     # DEPRECATED
