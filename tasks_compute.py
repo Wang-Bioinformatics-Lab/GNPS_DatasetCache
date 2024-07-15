@@ -66,7 +66,7 @@ def refresh_all():
             break
 
         # sleep
-        print("WAITING FOR MWB TO FINISH", file=sys.stderr, flush=True)
+        print("WAITING FOR MTBLS/MWB TO FINISH", file=sys.stderr, flush=True)
         time.sleep(60)
 
     # once these files are done, we want to populate
