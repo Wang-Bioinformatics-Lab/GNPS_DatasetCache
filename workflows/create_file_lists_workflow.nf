@@ -45,6 +45,24 @@ process mtblsFiles {
     """
 }
 
+process gnpsFiles {
+    publishDir "./nf_output", mode: 'copy'
+
+    conda "$TOOL_FOLDER/conda_env.yml"
+
+    input:
+    val x
+    file existing_datasets
+
+    output:
+    file 'GNPSFilePaths_ALL.tsv'
+
+    """
+    python $TOOL_FOLDER/getAllGNPS_file_paths.py \
+    --output_filename "GNPSFilePaths_ALL.tsv" \
+    """
+}
+
 process getcachefiles {
     publishDir "./nf_output", mode: 'copy'
 
@@ -109,6 +127,7 @@ workflow {
     // Getting all the files
     mwbFiles(1, all_datasets_ch)
     mtblsFiles(1, all_datasets_ch)
+    gnpsFiles(1, all_datasets_ch)
 
     // TODO: We should include the GNPS/MassIVE unique files here
 
