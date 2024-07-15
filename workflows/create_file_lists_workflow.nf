@@ -6,6 +6,8 @@ params.mtblstoken = ""
 TOOL_FOLDER = "$baseDir/bin"
 
 process mwbFiles {
+    errorStrategy 'ignore'
+
     publishDir "./nf_output", mode: 'copy'
 
     conda "$TOOL_FOLDER/conda_env.yml"
@@ -26,6 +28,8 @@ process mwbFiles {
 }
 
 process mtblsFiles {
+    errorStrategy 'ignore'
+
     publishDir "./nf_output", mode: 'copy'
 
     conda "$TOOL_FOLDER/conda_env.yml"
@@ -46,6 +50,8 @@ process mtblsFiles {
 }
 
 process gnpsFiles {
+    errorStrategy 'ignore'
+
     publishDir "./nf_output", mode: 'copy'
 
     conda "$TOOL_FOLDER/conda_env.yml"
@@ -58,8 +64,8 @@ process gnpsFiles {
     file 'GNPSFilePaths_ALL.tsv'
 
     """
-    python $TOOL_FOLDER/getAllGNPS_file_paths.py \
-    --output_filename "GNPSFilePaths_ALL.tsv" \
+    python $baseDir/bin_local/getAllGNPS_file_paths.py \
+    --output_path "GNPSFilePaths_ALL.tsv" \
     """
 }
 
@@ -76,8 +82,8 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
-    #wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
     """
 }
 

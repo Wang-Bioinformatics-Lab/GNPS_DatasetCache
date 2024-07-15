@@ -12,3 +12,5 @@ dependencies:
       - bs4
       - tqdm
       - owlready2
+      - massql
+      - networkx
