@@ -318,13 +318,13 @@ def recompute_all_datasets():
             recompute_file.delay(filepath)
 
 # Dumping the database to a file
-# @celery_instance.task(rate_limit='1/h')
-# def dump():
-#     url = "http://gnps-datasetcache-datasette:8001/datasette/database/filename.csv?_stream=on&_size=max"
-#     output_file = "./database/dump.csv"
-#     wget_cmd = "wget '{}' -O {} 2> /dev/null".format(url, output_file)
+@celery_instance.task(rate_limit='1/h')
+def dump():
+    url = "http://gnps-datasetcache-datasette:5234/datasette/database/filename.csv?_stream=on&_size=max"
+    output_file = "./database/dump.csv"
+    wget_cmd = "wget '{}' -O {} 2> /dev/null".format(url, output_file)
 
-#     os.system(wget_cmd)
+    os.system(wget_cmd)
 
 
 # Recomputing a single file
@@ -389,17 +389,17 @@ celery_instance.conf.beat_schedule = {
     #     "task": "tasks_compute.recompute_all_datasets",
     #     "schedule": 1204000
     # },
-    # "dump": {
-    #     "task": "tasks_compute.dump",
-    #     "schedule": 86400
-    # }
+    "dump": {
+        "task": "tasks_compute.dump",
+        "schedule": 86400
+    }
 }
 
 celery_instance.conf.task_routes = {
     # This is just for scheduling and only one can run at a time
     'tasks_compute.refresh_all': {'queue': 'beat'},
     'tasks_compute.populate_all_massive': {'queue': 'beat'},
-    # 'tasks_compute.dump': {'queue': 'beat'},
+    'tasks_compute.dump': {'queue': 'beat'},
     
 
     # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
