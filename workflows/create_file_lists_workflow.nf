@@ -57,8 +57,8 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    #wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
-    wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
     """
 }
 
