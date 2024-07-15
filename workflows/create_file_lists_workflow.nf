@@ -12,6 +12,7 @@ process mwbFiles {
 
     input:
     val x
+    file existing_datasets
 
     output:
     file 'MWBFilePaths_ALL.tsv'
@@ -19,7 +20,8 @@ process mwbFiles {
     """
     python $TOOL_FOLDER/getAllWorkbench_file_paths.py \
     --study_id ALL \
-    --output_path MWBFilePaths_ALL.tsv
+    --output_path MWBFilePaths_ALL.tsv \
+    -- existing_datasets $existing_datasets
     """
 }
 
@@ -30,6 +32,7 @@ process mtblsFiles {
 
     input:
     val x
+    file existing_datasets
 
     output:
     file 'MetabolightsFilePaths_ALL.tsv'
@@ -37,7 +40,8 @@ process mtblsFiles {
     """
     python $TOOL_FOLDER/getAllMetabolights_file_paths.py \
     --output_filename "MetabolightsFilePaths_ALL.tsv" \
-    --user_token $params.mtblstoken
+    --user_token $params.mtblstoken \
+    -- existing_datasets $existing_datasets
     """
 }
 
@@ -53,7 +57,8 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    wget 'http://gnps-datasetcache-datasette:5234/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'http://gnps-datasetcache-datasette:5234/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    wget 'https://datasetcache.gnps2.org/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
     """
 }
 
@@ -102,8 +107,8 @@ workflow {
     processUniqueUSI(all_dataset_files_ch)
 
     // Getting all the files
-    mwbFiles(1)
-    mtblsFiles(1)
+    mwbFiles(1, all_datasets_ch)
+    mtblsFiles(1, all_datasets_ch)
 
     // TODO: We should include the GNPS/MassIVE unique files here
 
