@@ -91,7 +91,16 @@ def refresh_mwb_mtbls_files():
         > nextflow_stdout.log".format(os.environ["MTBLS_TOKEN"])
 
     import subprocess
-    subprocess.Popen(nextflow_cmd, shell=True)
+    process = subprocess.Popen(nextflow_cmd, shell=True)
+
+    # Wait for the process to complete
+    process.wait()
+
+    # Get the return code
+    return_code = process.returncode
+
+    # Print the return code
+    print("Return code - NEXTFLOW DATASET LISTS:", return_code)
 
 @celery_instance.task(rate_limit='1/h')
 def populate_all_massive():
