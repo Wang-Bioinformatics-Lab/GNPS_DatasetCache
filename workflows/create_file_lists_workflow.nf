@@ -21,7 +21,7 @@ process mwbFiles {
     python $TOOL_FOLDER/getAllWorkbench_file_paths.py \
     --study_id ALL \
     --output_path MWBFilePaths_ALL.tsv \
-    -- existing_datasets $existing_datasets
+    --existing_datasets $existing_datasets
     """
 }
 
@@ -41,7 +41,7 @@ process mtblsFiles {
     python $TOOL_FOLDER/getAllMetabolights_file_paths.py \
     --output_filename "MetabolightsFilePaths_ALL.tsv" \
     --user_token $params.mtblstoken \
-    -- existing_datasets $existing_datasets
+    --existing_datasets $existing_datasets
     """
 }
 
@@ -57,8 +57,8 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    wget 'http://gnps-datasetcache-datasette:5234/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
-    #wget 'https://datasetcache.gnps2.org/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
     """
 }
 
@@ -80,20 +80,19 @@ process processUniqueUSI {
     """
 }
 
-process processUniqueDatasets {
+process getUniqueDatasets {
     publishDir "./nf_output", mode: 'copy'
 
     conda "$baseDir/bin_local/conda_env.yml"
 
     input:
-    file 'all_dataset_files.csv'
+    val x
 
     output:
     file 'all_datasets.tsv'
 
     """
     python $baseDir/bin_local/calculate_unique_datasets.py \
-    --input_path "all_dataset_files.csv" \
     --output_path all_datasets.tsv
     """
 }
@@ -101,7 +100,7 @@ process processUniqueDatasets {
 workflow {
     // Getting Existing Files
     all_dataset_files_ch = getcachefiles(1)
-    all_datasets_ch = processUniqueDatasets(all_dataset_files_ch)
+    all_datasets_ch = getUniqueDatasets(1)
 
     // Making the unique MRI Files
     processUniqueUSI(all_dataset_files_ch)
