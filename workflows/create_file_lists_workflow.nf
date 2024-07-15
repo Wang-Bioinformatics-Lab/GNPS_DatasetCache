@@ -75,9 +75,31 @@ process processUniqueUSI {
     """
 }
 
+process processUniqueDatasets {
+    publishDir "./nf_output", mode: 'copy'
+
+    conda "$baseDir/bin_local/conda_env.yml"
+
+    input:
+    file 'all_dataset_files.csv'
+
+    output:
+    file 'all_datasets.tsv'
+
+    """
+    python $baseDir/bin_local/calculate_unique_datasets.py \
+    --input_path "all_dataset_files.csv" \
+    --output_path all_datasets.tsv
+    """
+}
+
 workflow {
     // Getting Existing Files
     all_dataset_files_ch = getcachefiles(1)
+    all_datasets_ch = processUniqueDatasets(all_dataset_files_ch)
+
+    // Making the unique MRI Files
+    processUniqueUSI(all_dataset_files_ch)
 
     // Getting all the files
     mwbFiles(1)
@@ -89,6 +111,5 @@ workflow {
 
     // Sometime these files are imported into the database
 
-    // Making the unique MRI Files
-    processUniqueUSI(all_dataset_files_ch)
+    
 }
