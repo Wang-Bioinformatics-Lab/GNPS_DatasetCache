@@ -168,6 +168,10 @@ def getfiles(accession):
     
     return json.dumps(return_obj)
 
+# End point to get the dump file for all the files
+@app.route('/dataset/files', methods=['GET'])
+def getallfiles():
+    return send_file("./database/dump.csv", as_attachment=True)
 
 @app.route('/heartbeat', methods=['GET'])
 def testapi():
@@ -229,6 +233,8 @@ def populate_unique_file_usi():
 def dump():
     tasks_compute.dump.delay()
     return "dump"
+
+
 
 @app.route('/datasette/<path:path>',methods=['GET'])
 def proxy(path):
