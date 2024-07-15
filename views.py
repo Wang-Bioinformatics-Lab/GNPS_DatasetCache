@@ -94,6 +94,12 @@ def status():
         nextflow_log_data = "No log file found"
         nextflow_log_modified = "N/A"
 
+    # Doing cleanup on the nextflow log
+    try:
+        nextflow_log_data = nextflow_log_data.replace(os.environ["MTBLS_TOKEN"], "****")
+    except:
+        pass
+
     # Writing the nextflow information dict
     status_dict["nextflow"] = {
         "nextflow_stdout_modified" : nextflow_stdout_modified,
