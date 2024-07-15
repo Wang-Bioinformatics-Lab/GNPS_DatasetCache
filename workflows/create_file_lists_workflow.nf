@@ -52,6 +52,7 @@ process getcachefiles {
 
     input:
     val x
+    file existing_datasets
 
     output:
     file 'all_dataset_files.csv'
@@ -99,8 +100,8 @@ process getUniqueDatasets {
 
 workflow {
     // Getting Existing Files
-    all_dataset_files_ch = getcachefiles(1)
     all_datasets_ch = getUniqueDatasets(1)
+    all_dataset_files_ch = getcachefiles(1, all_datasets_ch)
 
     // Making the unique MRI Files
     processUniqueUSI(all_dataset_files_ch)
