@@ -8,8 +8,16 @@ def main(args):
         url = "https://datasetcache.gnps2.org/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
         r = requests.get(url)
 
+        all_datasets_list = r.json()["rows"]
+
+        # unrolling the dataset from a embedded list
+        all_datasets = []
+        for dataset in all_datasets_list:
+            all_datasets.append(dataset[0])
+
+
         df = pd.DataFrame()
-        df["datasets"] = r.json()["rows"]
+        df["datasets"] = all_datasets
 
         df.to_csv(args.output_path, sep="\t", index=False)
 
