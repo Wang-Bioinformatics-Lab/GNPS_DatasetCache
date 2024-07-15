@@ -5,16 +5,18 @@ import requests
 import time
 
 def main(args):
-
     # retry up to 5 times
     retries = 5
     wait_time = 30
 
     for attempt in range(retries):
+        print("Attempt", attempt + 1, flush=True)
         try:
             #url = "https://datasetcache.gnps2.org/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
             url = "http://gnps-datasetcache-datasette:5234/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
             r = requests.get(url, timeout=60)
+
+            print("Finished Getting Data", flush=True)
 
             all_datasets_list = r.json()["rows"]
 
