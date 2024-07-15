@@ -113,8 +113,5 @@ workflow {
     // TODO: We should include the GNPS/MassIVE unique files here
 
     // TODO: Aggregate them together
-
-    // Sometime these files are imported into the database
-
     
 }
