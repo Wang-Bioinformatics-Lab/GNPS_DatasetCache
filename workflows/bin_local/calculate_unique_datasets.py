@@ -12,7 +12,8 @@ def main(args):
 
     for attempt in range(retries):
         try:
-            url = "https://datasetcache.gnps2.org/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
+            #url = "https://datasetcache.gnps2.org/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
+            url = "http://gnps-datasetcache-datasette:5234/datasette/database.json?sql=SELECT+DISTINCT+dataset%0D%0AFROM+filename%3B"
             r = requests.get(url, timeout=60)
 
             all_datasets_list = r.json()["rows"]
@@ -36,7 +37,7 @@ def main(args):
                 time.sleep(wait_time)
             else:
                 print("All retry attempts failed.")
-                
+
     # Writing out empty file with dataset column header
     with open(args.output_path, 'w') as f:
         f.write('dataset\n')
