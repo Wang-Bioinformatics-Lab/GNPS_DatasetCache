@@ -77,7 +77,6 @@ process getcachefiles {
 
     input:
     val x
-    file existing_datasets
 
     output:
     file 'all_dataset_files.csv'
@@ -112,13 +111,14 @@ process getUniqueDatasets {
     conda "$baseDir/bin_local/conda_env.yml"
 
     input:
-    val x
+    file input_all_files
 
     output:
     file 'all_datasets.tsv'
 
     """
     python $baseDir/bin_local/calculate_unique_datasets.py \
+    --input_path $input_all_files \
     --output_path all_datasets.tsv
     """
 }
@@ -143,8 +143,10 @@ process removeRedundantMRI {
 
 workflow {
     // Getting Existing Files
-    all_datasets_ch = getUniqueDatasets(1)
-    all_dataset_files_ch = getcachefiles(1, all_datasets_ch)
+    all_dataset_files_ch = getcachefiles(1)
+    
+    // Getting unique datasets
+    all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
 
     // Making the unique MRI Files
     processUniqueUSI(all_dataset_files_ch)
