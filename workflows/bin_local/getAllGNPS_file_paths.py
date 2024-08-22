@@ -100,15 +100,27 @@ def main(args):
     # Getting all GNPS Datasets
     all_datasets = _get_all_datasets()
 
+    # Filtering these datasets to only the ones that are not in the existing datasets
+    filtered_all_datasets = []
+
+    for dataset in all_datasets:
+        dataset_accession = dataset["dataset"]
+        
+        # Skipping already imported
+        if dataset_accession in existing_datasets:
+            continue
+
+        # Filtering if 
+
+        filtered_all_datasets.append(dataset)
+
     all_files_information = []
 
     # Getting each ones' files
-    for dataset_information in tqdm(all_datasets):
+    for dataset_information in tqdm(filtered_all_datasets):
         dataset_accession = dataset_information["dataset"]
 
-        if dataset_accession in existing_datasets:
-            print("Skipping", dataset_accession)
-            continue
+        print("Addressing Files From ", dataset_accession)
 
         current_dataset_files = _get_massive_files(dataset_information["dataset"])
 
