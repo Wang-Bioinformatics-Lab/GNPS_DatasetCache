@@ -110,7 +110,8 @@ def main(args):
         if dataset_accession in existing_datasets:
             continue
 
-        # Filtering if 
+        # TODO: Filtering if too small dataset accession
+
 
         filtered_all_datasets.append(dataset)
 
