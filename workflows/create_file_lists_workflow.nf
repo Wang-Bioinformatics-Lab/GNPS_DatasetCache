@@ -137,7 +137,26 @@ process removeRedundantMRI {
     """
     python $baseDir/bin_local/calculate_filtered_nonredundant_mri.py \
     all_unique_mri.tsv \
-    all_nonredundant_mri.tsv
+    all_nonredundant_mri.tsv \
+    removed_mri.tsv
+    """
+}
+
+process createDownloadMRI {
+    publishDir "./nf_output", mode: 'copy'
+
+    conda "$baseDir/bin_local/conda_env.yml"
+
+    input:
+    file 'all_nonredundant_mri.tsv'
+
+    output:
+    file 'download_mri.tsv'
+
+    """
+    python $baseDir/bin_local/create_download_mri.py \
+    all_nonredundant_mri.tsv \
+    download_mri.tsv
     """
 }
 
@@ -152,7 +171,10 @@ workflow {
     unique_mri = processUniqueUSI(all_dataset_files_ch)
 
     // Removing Redundant MRI
-    removeRedundantMRI(unique_mri)
+    nonredundant_mri = removeRedundantMRI(unique_mri)
+
+    // Creating the download file
+    createDownloadMRI(nonredundant_mri)
 
     // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)

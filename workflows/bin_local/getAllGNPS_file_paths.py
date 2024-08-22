@@ -8,10 +8,13 @@ from pathlib import Path
 
 from gnpsdata import publicdata
 
-def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"]):
+def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw", ".d"]):
     # we are using HTTP
     print("HTTP")
-    all_files = publicdata.get_massive_public_dataset_filelist(dataset_accession)
+    try:
+        all_files = publicdata.get_massive_public_dataset_filelist(dataset_accession)
+    except:
+        return []
 
     # Cleaning it up
     for file_obj in all_files:
@@ -128,7 +131,7 @@ def main(args):
 
         print("Addressing Files From ", dataset_accession)
 
-        current_dataset_files = _get_massive_files(dataset_information["dataset"])
+        current_dataset_files = _get_massive_files(dataset_information["dataset"], acceptable_extensions=[])
 
         dataset_title = dataset_information["title"]
         sample_type = "MASSIVE"
