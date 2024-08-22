@@ -80,6 +80,13 @@ def _get_file_metadata(msv_path):
 def main(args):
     print(args)
 
+    # Getting the existing datasets
+    if args.existing_datasets is not None:
+        existing_datasets_df = pd.read_csv(args.existing_datasets)
+        existing_datasets = set(existing_datasets_df["datasets"].values)
+    else:
+        existing_datasets = set()
+
     # Getting all GNPS Datasets
     all_datasets = _get_all_datasets()
 
@@ -87,6 +94,12 @@ def main(args):
 
     # Getting each ones' files
     for dataset_information in all_datasets:
+        dataset_accession = dataset_information["dataset"]
+
+        if dataset_accession in existing_datasets:
+            print("Skipping", dataset_accession)
+            continue
+
         current_dataset_files = _get_massive_files(dataset_information["dataset"])
 
         dataset_title = dataset_information["title"]
@@ -137,5 +150,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Filter files based on extensions and preferences.")
     parser.add_argument('-o', '--output_path', type=str, required=True, help='Path to the output TSV file.')
+    parser.add_argument('--existing_datasets', type=str, default=None, help='Path to the existing datasets file.')
+        
     args = parser.parse_args()
     main(args)

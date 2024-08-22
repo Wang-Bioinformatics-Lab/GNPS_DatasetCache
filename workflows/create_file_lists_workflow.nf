@@ -66,6 +66,7 @@ process gnpsFiles {
     """
     python $baseDir/bin_local/getAllGNPS_file_paths.py \
     --output_path "GNPSFilePaths_ALL.tsv" \
+    --existing_datasets $existing_datasets
     """
 }
 
@@ -119,6 +120,24 @@ process getUniqueDatasets {
     """
     python $baseDir/bin_local/calculate_unique_datasets.py \
     --output_path all_datasets.tsv
+    """
+}
+
+process removeRedundantMRI {
+    publishDir "./nf_output", mode: 'copy'
+
+    conda "$baseDir/bin_local/conda_env.yml"
+
+    input:
+    file 'all_unique_mri.tsv'
+
+    output:
+    file 'all_nonredundant_mri.tsv'
+
+    """
+    python $baseDir/bin_local/removeRedundantMRI.py \
+    all_unique_mri.tsv \
+    all_nonredundant_mri.tsv
     """
 }
 
