@@ -113,11 +113,10 @@ def main(args):
         # TODO: Filtering if too small dataset accession
         try:
             accession_int = int(dataset_accession.replace("MSV", ""))
-            if dataset_accession <= 78429:
+            if accession_int <= 78429:
                 continue
         except:
             pass
-
 
         filtered_all_datasets.append(dataset)
 
