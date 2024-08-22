@@ -10,13 +10,13 @@ def clean_mac_path(path):
     return path
 
 
-def prefer_extension(group):
-    mask = group['extension'].isin(['mzml', 'mzxml'])
-    if mask.any():
-        group['keep'] = mask
-    else:
-        group['keep'] = [True] + [False] * (len(group) - 1)
-    return group
+# def prefer_extension(group):
+#     mask = group['extension'].isin(['mzml', 'mzxml'])
+#     if mask.any():
+#         group['keep'] = mask
+#     else:
+#         group['keep'] = [True] + [False] * (len(group) - 1)
+#     return group
 
 def normalize_d_paths(path):
     if '.d' in path:
@@ -49,9 +49,10 @@ def filter_usi_extensions(df):
     df[['base', 'extension']] = df['filename'].str.rsplit('.', n=1, expand=True)
     df['extension'] = df['extension'].str.lower()
     df = df[df['extension'].isin(allowed_extensions)]
-    df = df.groupby(['dataset', 'base'], as_index=False).apply(prefer_extension)
-    df = df[df['keep']]
-    return df.drop(columns=['filename', 'base', 'extension', 'keep']).drop_duplicates(subset=['usi'])
+    #df = df.groupby(['dataset', 'base'], as_index=False).apply(prefer_extension)
+    #df = df[df['keep']]
+    #return df.drop(columns=['filename', 'base', 'extension', 'keep']).drop_duplicates(subset=['usi'])
+    return df.drop(columns=['filename', 'base', 'extension']).drop_duplicates(subset=['usi'])
 
 def main(args):
     try:
