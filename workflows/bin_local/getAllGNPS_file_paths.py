@@ -3,6 +3,7 @@ import os
 import argparse
 import requests
 import datetime
+from tqdm import tqdm
 from pathlib import Path
 
 from gnpsdata import publicdata
@@ -27,9 +28,10 @@ def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxm
 def _get_all_datasets():
     all_datasets = []
     offset = 0
+    page_size = 1000
 
     while True:
-        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
+        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize={}&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(page_size, offset)
         r = requests.get(url)
 
         try:
@@ -39,9 +41,15 @@ def _get_all_datasets():
 
         dataset_list = r.json()["row_data"]
 
+        if len(dataset_list) == 0:
+            break
+
         for dataset in dataset_list:
             all_datasets.append(dataset)
-        offset += 10
+        
+        print("Got", len(dataset_list), "datasets", len(all_datasets), "total datasets", "currently at", offset)
+
+        offset += page_size
 
     return all_datasets
 
@@ -87,13 +95,15 @@ def main(args):
     else:
         existing_datasets = set()
 
+    print("Found", len(existing_datasets), "existing datasets")
+
     # Getting all GNPS Datasets
     all_datasets = _get_all_datasets()
 
     all_files_information = []
 
     # Getting each ones' files
-    for dataset_information in all_datasets:
+    for dataset_information in tqdm(all_datasets):
         dataset_accession = dataset_information["dataset"]
 
         if dataset_accession in existing_datasets:

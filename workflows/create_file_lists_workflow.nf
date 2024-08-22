@@ -54,7 +54,7 @@ process gnpsFiles {
 
     publishDir "./nf_output", mode: 'copy'
 
-    conda "$TOOL_FOLDER/conda_env.yml"
+    conda "$TOOL_FOLDER/bin_local/conda_env.yml"
 
     input:
     val x
