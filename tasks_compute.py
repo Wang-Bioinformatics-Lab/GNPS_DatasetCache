@@ -81,8 +81,8 @@ def refresh_all():
 
     return ""
 
-# Here we are going ot calculate the files
-@celery_instance.task()
+# Here we are going ot calculate the files, runs at most for 48 hours
+@celery_instance.task(time_limit=172800)
 def refresh_mwb_mtbls_files():
     # running the nextflow command
     dotenv.load_dotenv()

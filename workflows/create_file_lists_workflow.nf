@@ -135,7 +135,7 @@ process removeRedundantMRI {
     file 'all_nonredundant_mri.tsv'
 
     """
-    python $baseDir/bin_local/removeRedundantMRI.py \
+    python $baseDir/bin_local/calculate_filtered_nonredundant_mri.py \
     all_unique_mri.tsv \
     all_nonredundant_mri.tsv
     """
@@ -149,15 +149,14 @@ workflow {
     all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
 
     // Making the unique MRI Files
-    processUniqueUSI(all_dataset_files_ch)
+    unique_mri = processUniqueUSI(all_dataset_files_ch)
 
-    // Getting all the files
+    // Removing Redundant MRI
+    removeRedundantMRI(unique_mri)
+
+    // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)
     mtblsFiles(1, all_datasets_ch)
     gnpsFiles(1, all_datasets_ch)
-
-    // TODO: We should include the GNPS/MassIVE unique files here
-
-    // TODO: Aggregate them together
     
 }
