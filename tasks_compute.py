@@ -139,7 +139,7 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
         # cleaning up the paths
         dataset_accession = record["study_id"]
         filepath = record["file_path"]
-        filepath = filepath.replace("/nfs/public/rw/metabolomics/prod/data/studies/metadata-files/{}/".format(dataset_accession), "")
+        #filepath = filepath.replace("/nfs/public/rw/metabolomics/prod/data/studies/metadata-files/{}/".format(dataset_accession), "")
 
 
         usi = "mzspec:{}:{}".format(dataset_accession, filepath)

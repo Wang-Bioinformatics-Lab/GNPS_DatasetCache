@@ -207,7 +207,7 @@ def refresh_mtbls_import():
     tasks_compute.populate_mtbls_files.delay()
     return "populate_mtbls_files"
 
-@app.route('/refresh/massive/massive', methods=['GET'])
+@app.route('/refresh/massive/import', methods=['GET'])
 def refresh_msv():
     tasks_compute.populate_msv_files.delay()
     return "refreshing all massive datasets"
