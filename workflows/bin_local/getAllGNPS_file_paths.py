@@ -87,6 +87,7 @@ def _get_file_metadata(msv_path):
 
     return collection_name, is_update, update_name
 
+
 def main(args):
     print(args)
 
@@ -161,9 +162,9 @@ def main(args):
                 collection_name, is_update, update_name =  _get_file_metadata(filename)
 
                 fileinformation_dict = {}
-                fileinformation_dict["study_id"] = dataset_accession
-                fileinformation_dict["file_path"] = filename
-                fileinformation_dict["USI"] = usi
+                fileinformation_dict["usi"] = usi
+                fileinformation_dict["dataset"] = dataset_accession
+                fileinformation_dict["filepath"] = filename
                 fileinformation_dict["sample_type"] = sample_type
                 fileinformation_dict["collection"] = collection_name
                 fileinformation_dict["is_update"] = is_update
