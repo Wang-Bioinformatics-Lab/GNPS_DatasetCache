@@ -83,7 +83,7 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    #wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'https://datasetcache.gnps2.org/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
     python $baseDir/bin_local/get_current_cache_files.py \
     all_dataset_files.csv
     """
