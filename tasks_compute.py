@@ -15,7 +15,7 @@ import werkzeug
 import json
 import dotenv
 import time
-
+from tqdm import tqdm
 
 # Setting up celery
 celery_instance = Celery('tasks_compute', backend='redis://gnps-datasetcache-redis', broker='redis://gnps-datasetcache-redis')
@@ -106,7 +106,7 @@ def calculate_repository_files():
 
 
 def _import_msv_files(files_df):
-    for record in files_df.to_dict(orient="records"):
+    for record in tqdm(files_df.to_dict(orient="records")):
         try:
             usi = record["usi"]
             filepath = record["filepath"]
@@ -131,11 +131,11 @@ def _import_msv_files(files_df):
                                             size=size, 
                                             size_mb=size_mb)
         except:
-            raise
+            pass
 
 def _import_mwb_mtbls_files(files_df, repo="MWB"):
     
-    for record in files_df.to_dict(orient="records"):
+    for record in tqdm(files_df.to_dict(orient="records")):
         # cleaning up the paths
         dataset_accession = record["study_id"]
         filepath = record["file_path"]
@@ -168,7 +168,7 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
             pass
 
 def _import_unique_mri_files(files_df):
-    for record in files_df.to_dict(orient="records"):
+    for record in tqdm(files_df.to_dict(orient="records")):
         try:
             usi = record["usi"]
             filepath = record["filepath"]
@@ -437,10 +437,6 @@ celery_instance.conf.beat_schedule = {
         "task": "tasks_compute.refresh_all",
         "schedule": 86400
     },
-    # "recompute_all_datasets": {
-    #     "task": "tasks_compute.recompute_all_datasets",
-    #     "schedule": 1204000
-    # },
     "dump": {
         "task": "tasks_compute.dump",
         "schedule": 86400

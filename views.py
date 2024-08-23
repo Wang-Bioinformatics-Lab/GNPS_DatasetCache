@@ -190,12 +190,12 @@ def testapi():
 @app.route('/refresh/all', methods=['GET'])
 def refresh_all():
     tasks_compute.refresh_all.delay()
-    return "refresh_all"
+    return "refresh_full_pipeline"
 
-@app.route('/refresh/mwbmtbls/files', methods=['GET'])
+@app.route('/refresh/repository/files', methods=['GET'])
 def refresh_repository_files():
     tasks_compute.calculate_repository_files.delay()
-    return "refresh_mwb_mtbls_files"
+    return "refresh_repository_files"
 
 @app.route('/refresh/mwb/import', methods=['GET'])
 def refresh_mwb_import():
@@ -210,7 +210,7 @@ def refresh_mtbls_import():
 @app.route('/refresh/massive/import', methods=['GET'])
 def refresh_msv():
     tasks_compute.populate_msv_files.delay()
-    return "refreshing all massive datasets"
+    return "populate_msv_files"
 
 @app.route('/refresh/mriset/import', methods=['GET'])
 def populate_unique_file_usi():
