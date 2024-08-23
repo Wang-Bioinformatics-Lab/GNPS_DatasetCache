@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 import argparse
 from pathlib import Path
+import requests
 
 # Extract MRIs with sample_type GNPS, MTBLS, MWB and ends with mzML/mzml or mzXML/mzxml
 # Allowed sample types and file extensions
@@ -30,20 +31,75 @@ def main():
     filtered_removed_df.to_csv(args.output_removed_mri_list, sep="\t", index=False)
 
 
+def _get_all_datasets():
+    all_datasets = []
+    offset = 0
+    page_size = 1000
+
+    while True:
+        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize={}&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(page_size, offset)
+        r = requests.get(url)
+
+        try:
+            r.raise_for_status()
+        except:
+            break
+
+        dataset_list = r.json()["row_data"]
+
+        if len(dataset_list) == 0:
+            break
+
+        for dataset in dataset_list:
+            all_datasets.append(dataset)
+        
+        print("Got", len(dataset_list), "datasets", len(all_datasets), "total datasets", "currently at", offset)
+
+        offset += page_size
+
+    return all_datasets
+
+def _get_gnps_dataset_list(file_mri_df):
+    # Lets try going ot GNPS first
+    try:
+        all_massive_datasets = _get_all_datasets()
+
+        # checking if GNPS is in the dataset title
+        gnps_datasets = [x for x in all_massive_datasets if "GNPS" in x["title"]]
+
+        # Getting the GNPS dataset accessions
+        gnps_datasets_accessions = [x["dataset"] for x in gnps_datasets]
+
+        return gnps_datasets_accessions
+    except:
+        pass
+
+    # Getting unique dataset for GNPS sample_type
+    gnps_datasets_accessions = list(file_mri_df[file_mri_df['sample_type'] == 'GNPS']['dataset'].unique())
+
+    return gnps_datasets_accessions
+
 def filter_mri(input_mri_df):
     df = input_mri_df
+
+    # Getting the GNPS dataset accessions
+    gnps_datasets = set(_get_gnps_dataset_list(df))
 
     # Filtering __MACOSX
     df = df[~df['usi'].str.contains(":__MACOSX")]
 
-    # Filtering the allowed_sample_types
-    df = df[df['sample_type'].isin(allowed_sample_types)]
+    # Filtering the allowed sample types
+    mwb_df = df[df['sample_type'] == "MWB"]
+    mtbls_df = df[df['sample_type'] == "MTBLS"]
+    gnps_df = df[df['dataset'].isin(gnps_datasets)]
+
+    all_metabolomics_df = pd.concat([mwb_df, mtbls_df, gnps_df])
 
     # Filtering the allowed_extensions
     #df = df[df['usi'].str.endswith(tuple(allowed_extensions))]
 
     # Now we are doing the hard part, we want to make sure that we are only keeping one file per dataset
-    filtered_selected_df, filtered_removed_df = filter_redundant_files(df)
+    filtered_selected_df, filtered_removed_df = filter_redundant_files(all_metabolomics_df)
 
     return filtered_selected_df, filtered_removed_df
 

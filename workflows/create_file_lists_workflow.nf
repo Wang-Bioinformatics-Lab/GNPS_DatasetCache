@@ -126,6 +126,8 @@ process getUniqueDatasets {
 process removeRedundantMRI {
     publishDir "./nf_output", mode: 'copy'
 
+    cache false
+
     conda "$baseDir/bin_local/conda_env.yml"
 
     input:
@@ -133,6 +135,7 @@ process removeRedundantMRI {
 
     output:
     file 'all_nonredundant_mri.tsv'
+    file 'removed_mri.tsv'
 
     """
     python $baseDir/bin_local/calculate_filtered_nonredundant_mri.py \
@@ -171,7 +174,7 @@ workflow {
     unique_mri = processUniqueUSI(all_dataset_files_ch)
 
     // Removing Redundant MRI
-    nonredundant_mri = removeRedundantMRI(unique_mri)
+    (nonredundant_mri, _) = removeRedundantMRI(unique_mri)
 
     // Creating the download file
     createDownloadMRI(nonredundant_mri)

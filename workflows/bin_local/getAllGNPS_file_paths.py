@@ -76,10 +76,9 @@ def _get_file_metadata(msv_path):
     my_path = Path(msv_path)
     all_parents = my_path.parents
     len_parents = len(all_parents)
-    collection_path = all_parents[len_parents - 3]
 
     # If its an update, then we'll have to look a bit deeper
-    collection_name = collection_path.name
+    collection_name = my_path.parts[0]
     if collection_name == "updates":
         is_update = 1
 
@@ -122,6 +121,12 @@ def main(args):
             pass
 
         filtered_all_datasets.append(dataset)
+
+
+    print("GETTING", len(filtered_all_datasets), "DATASETS")
+    
+    # DEBUG
+    # filtered_all_datasets = filtered_all_datasets[:10]
 
     all_files_information = []
 
@@ -175,7 +180,7 @@ def main(args):
     
     # Writing out the file
     file_information_df = pd.DataFrame(all_files_information)
-    file_information_df.to_csv(args.output_path)
+    file_information_df.to_csv(args.output_path, index=False)
 
 
 if __name__ == '__main__':
