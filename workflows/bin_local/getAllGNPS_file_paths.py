@@ -110,8 +110,9 @@ def main(args):
         dataset_accession = dataset["dataset"]
         
         # Skipping already imported
-        if dataset_accession in existing_datasets:
-            continue
+        if args.completeness != "all":
+            if dataset_accession in existing_datasets:
+                continue
 
         # TODO: Filtering if too small dataset accession
         try:
@@ -128,6 +129,15 @@ def main(args):
     
     # DEBUG
     # filtered_all_datasets = filtered_all_datasets[:10]
+
+    # Subset if the option is selected
+    if args.completeness == "newsubset":
+        # randomize the order
+        import random
+        random.shuffle(filtered_all_datasets)
+
+        # get the first 10
+        filtered_all_datasets = filtered_all_datasets[:10]
 
     all_files_information = []
 
@@ -188,6 +198,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Filter files based on extensions and preferences.")
     parser.add_argument('-o', '--output_path', type=str, required=True, help='Path to the output TSV file.')
     parser.add_argument('--existing_datasets', type=str, default=None, help='Path to the existing datasets file.')
+
+    # adding parameter to on getting all or random subset
+    parser.add_argument('--completeness', type=str, default="new", help='all means ignoring current datasets, new means only new datasets, newsubset means only new datasets and a random subset of the existing datasets')
         
     args = parser.parse_args()
     main(args)
