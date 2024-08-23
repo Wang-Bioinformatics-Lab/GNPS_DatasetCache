@@ -95,9 +95,6 @@ def filter_mri(input_mri_df):
 
     all_metabolomics_df = pd.concat([mwb_df, mtbls_df, gnps_df])
 
-    # Filtering the allowed_extensions
-    #df = df[df['usi'].str.endswith(tuple(allowed_extensions))]
-
     # Now we are doing the hard part, we want to make sure that we are only keeping one file per dataset
     filtered_selected_df, filtered_removed_df = filter_redundant_files(all_metabolomics_df)
 
