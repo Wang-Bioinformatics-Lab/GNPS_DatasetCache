@@ -181,7 +181,7 @@ def main(args):
     
     # Writing out the file
     file_information_df = pd.DataFrame(all_files_information)
-    file_information_df.to_csv(args.output_path, index=False)
+    file_information_df.to_csv(args.output_path, index=False, sep="\t")
 
 
 if __name__ == '__main__':

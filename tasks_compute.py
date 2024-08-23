@@ -227,7 +227,6 @@ def _import_unique_mri_files(files_df):
 @celery_instance.task
 def populate_msv_files():
     # Reading the file and inserting into the database
-    
     df = pd.read_csv("workflows/nf_output/GNPSFilePaths_ALL.tsv", sep="\t")
 
     _import_msv_files(df)
@@ -238,20 +237,22 @@ def populate_msv_files():
 @celery_instance.task
 def populate_mwb_files():
     # We assume that we have already run the workflow
-
     # addressing mwb
     df = pd.read_csv("workflows/nf_output/MWBFilePaths_ALL.tsv", sep="\t")
 
     _import_mwb_mtbls_files(df, repo="MWB")
 
+    return 0
+
 @celery_instance.task
 def populate_mtbls_files():
     # We assume that we have already run the workflow
-
     # addressing mtbls
     df = pd.read_csv("workflows/nf_output/MetabolightsFilePaths_ALL.tsv", sep="\t")
 
     _import_mwb_mtbls_files(df, repo="MTBLS")
+
+    return 0
 
 @celery_instance.task
 def populate_unique_file_usi():

@@ -56,8 +56,6 @@ process gnpsFiles {
 
     conda "$baseDir/bin_local/conda_env.yml"
 
-    cache false
-
     input:
     val x
     file existing_datasets
