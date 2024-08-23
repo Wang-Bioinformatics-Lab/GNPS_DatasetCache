@@ -66,7 +66,8 @@ process gnpsFiles {
     """
     python $baseDir/bin_local/getAllGNPS_file_paths.py \
     --output_path "GNPSFilePaths_ALL.tsv" \
-    --existing_datasets $existing_datasets
+    --existing_datasets $existing_datasets \
+    --completeness newsubset
     """
 }
 
@@ -82,8 +83,9 @@ process getcachefiles {
     file 'all_dataset_files.csv'
 
     """
-    #wget 'http://gnps-datasetcache-datasette:5234/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
-    wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    #wget 'https://datasetcache.gnps2.org/datasette/database/uniquemri.csv?_stream=on&_size=max' -O all_dataset_files.csv
+    python $baseDir/bin_local/get_current_cache_files.py \
+    all_dataset_files.csv
     """
 }
 
