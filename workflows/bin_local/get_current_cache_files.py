@@ -4,8 +4,12 @@ import argparse
 import requests
 
 def stream_to_disk(url, output_file):
+    print("Streaming", url)
     # Send a GET request to the URL
-    response = requests.get(url, stream=True)
+    try:
+        response = requests.get(url, stream=True)
+    except:
+        return 1
     
     # Check if the request was successful
     if response.status_code == 200:
@@ -30,10 +34,15 @@ def main():
     
     args = parser.parse_args()
 
-    # Using the local version first
-    url = "http://gnps-datasetcache-datasette:5234/datasette/database/filename.csv?_stream=on&_size=max"
+    url = "http://localhost:5235/datasette/database/filename.csv?_stream=on&_size=max"
 
     ret_code = stream_to_disk(url, args.output_dataset_filename)
+
+    if ret_code != 0:
+        # Using the local version first
+        url = "http://gnps-datasetcache-datasette2:5234/datasette/database/filename.csv?_stream=on&_size=max"
+
+        ret_code = stream_to_disk(url, args.output_dataset_filename)
 
     if ret_code != 0:
         # We get the global version
