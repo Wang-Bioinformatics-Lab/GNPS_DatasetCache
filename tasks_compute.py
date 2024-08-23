@@ -57,7 +57,7 @@ def _get_file_metadata(msv_path):
 @celery_instance.task()
 def refresh_all():
     # we will call the tasks here as subtasks
-    mwb_mtbls_files_result = refresh_mwb_mtbls_files.delay()
+    mwb_mtbls_files_result = calculate_repository_files.delay()
 
     # Wait for task to be done
     while(True):
@@ -72,9 +72,10 @@ def refresh_all():
     # once these files are done, we want to populate
     populate_mwb_files.delay()
     populate_mtbls_files.delay()
+    populate_msv_files.delay()
 
     # we should consider doing MassIVE at the end
-    populate_all_massive.delay()
+    #populate_all_massive.delay()
 
     # finally we want to populate the output into the database
     populate_unique_file_usi.delay()
@@ -83,7 +84,7 @@ def refresh_all():
 
 # Here we are going ot calculate the files, runs at most for 48 hours
 @celery_instance.task(time_limit=172800)
-def refresh_mwb_mtbls_files():
+def calculate_repository_files():
     # running the nextflow command
     dotenv.load_dotenv()
     nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf \
@@ -102,35 +103,36 @@ def refresh_mwb_mtbls_files():
     # Print the return code
     print("Return code - NEXTFLOW DATASET LISTS:", return_code)
 
-@celery_instance.task(rate_limit='1/h')
-def populate_all_massive():
-    Filename.create_table(True)
 
-    #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
-    #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
-    #all_dataset_list.reverse()
 
-    # Populating GNPS
-    offset = 0
-
-    while True:
-        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
-        r = requests.get(url)
-
+def _import_msv_files(files_df):
+    for record in files_df.to_dict(orient="records"):
         try:
-            r.raise_for_status()
+            usi = record["usi"]
+            filepath = record["filepath"]
+            dataset_accession = record["dataset"]
+            sample_type = record["sample_type"]
+            collection_name = record["collection"]
+            is_update = record["is_update"]
+            update_name = record["update_name"]
+            create_time = record["create_time"]
+            size = record["size"]
+            size_mb = record["size_mb"]
+
+            filename_db = Filename.get_or_create(
+                                            usi=usi,
+                                            filepath=filepath, 
+                                            dataset=dataset_accession,
+                                            sample_type=sample_type,
+                                            collection=collection_name,
+                                            is_update=is_update,
+                                            update_name=update_name,
+                                            create_time=create_time,
+                                            size=size, 
+                                            size_mb=size_mb)
         except:
-            break
+            raise
 
-        dataset_list = r.json()["row_data"]
-
-        for dataset in dataset_list:
-            accession = dataset["dataset"]
-            print("Scheduling", accession)
-            populate_massive_dataset.delay(accession)
-
-        offset += 10
-    
 def _import_mwb_mtbls_files(files_df, repo="MWB"):
     
     for record in files_df.to_dict(orient="records"):
@@ -192,6 +194,46 @@ def _import_unique_mri_files(files_df):
                                             size_mb=size_mb)
         except:
             raise
+
+# @celery_instance.task(rate_limit='1/h')
+# def populate_all_massive():
+#     Filename.create_table(True)
+
+#     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=0&offset=0&query=").json()["row_data"]
+#     #all_dataset_list = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=300&offset=9001&query=").json()["row_data"]
+#     #all_dataset_list.reverse()
+
+#     # Populating GNPS
+#     offset = 0
+
+#     while True:
+#         url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
+#         r = requests.get(url)
+
+#         try:
+#             r.raise_for_status()
+#         except:
+#             break
+
+#         dataset_list = r.json()["row_data"]
+
+#         for dataset in dataset_list:
+#             accession = dataset["dataset"]
+#             print("Scheduling", accession)
+#             populate_massive_dataset.delay(accession)
+
+#         offset += 10
+
+@celery_instance.task
+def populate_msv_files():
+    # Reading the file and inserting into the database
+    
+    df = pd.read_csv("workflows/nf_output/GNPSFilePaths_ALL.tsv", sep="\t")
+
+    _import_msv_files(df)
+
+    return 0
+
 
 @celery_instance.task
 def populate_mwb_files():
@@ -407,22 +449,13 @@ celery_instance.conf.beat_schedule = {
 celery_instance.conf.task_routes = {
     # This is just for scheduling and only one can run at a time
     'tasks_compute.refresh_all': {'queue': 'beat'},
-    'tasks_compute.populate_all_massive': {'queue': 'beat'},
     'tasks_compute.dump': {'queue': 'beat'},
     
-
-    # 'tasks_compute.recompute_all_datasets': {'queue': 'beat'},
-    # 'tasks_compute.precompute_all_datasets': {'queue': 'beat'},
-    
     # This is doing the actual work
-    'tasks_compute.refresh_mwb_mtbls_files': {'queue': 'compute'},
+    'tasks_compute.calculate_repository_files': {'queue': 'compute'},
+
     'tasks_compute.populate_mwb_files': {'queue': 'compute'},    
     'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
-
-    'tasks_compute.populate_massive_dataset': {'queue': 'compute'},
-
+    'tasks_compute.populate_msv_files': {'queue': 'compute'},
     'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
-    
-    # DEPRECATED
-    'tasks_compute.recompute_file': {'queue': 'compute'}
 }
