@@ -3,14 +3,18 @@ import os
 import argparse
 import requests
 import datetime
+from tqdm import tqdm
 from pathlib import Path
 
 from gnpsdata import publicdata
 
-def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw"]):
+def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxml", ".cdf", ".raw", ".d"]):
     # we are using HTTP
     print("HTTP")
-    all_files = publicdata.get_massive_public_dataset_filelist(dataset_accession)
+    try:
+        all_files = publicdata.get_massive_public_dataset_filelist(dataset_accession)
+    except:
+        return []
 
     # Cleaning it up
     for file_obj in all_files:
@@ -27,9 +31,10 @@ def _get_massive_files(dataset_accession, acceptable_extensions=[".mzml", ".mzxm
 def _get_all_datasets():
     all_datasets = []
     offset = 0
+    page_size = 1000
 
     while True:
-        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=10&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(offset)
+        url = "https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize={}&offset={}&query=%23%7B%22query%22%3A%7B%7D%2C%22table_sort_history%22%3A%22createdMillis_dsc%22%7D".format(page_size, offset)
         r = requests.get(url)
 
         try:
@@ -39,9 +44,15 @@ def _get_all_datasets():
 
         dataset_list = r.json()["row_data"]
 
+        if len(dataset_list) == 0:
+            break
+
         for dataset in dataset_list:
             all_datasets.append(dataset)
-        offset += 10
+        
+        print("Got", len(dataset_list), "datasets", len(all_datasets), "total datasets", "currently at", offset)
+
+        offset += page_size
 
     return all_datasets
 
@@ -65,10 +76,9 @@ def _get_file_metadata(msv_path):
     my_path = Path(msv_path)
     all_parents = my_path.parents
     len_parents = len(all_parents)
-    collection_path = all_parents[len_parents - 3]
 
     # If its an update, then we'll have to look a bit deeper
-    collection_name = collection_path.name
+    collection_name = my_path.parts[0]
     if collection_name == "updates":
         is_update = 1
 
@@ -77,17 +87,67 @@ def _get_file_metadata(msv_path):
 
     return collection_name, is_update, update_name
 
+
 def main(args):
     print(args)
+
+    # Getting the existing datasets
+    if args.existing_datasets is not None:
+        existing_datasets_df = pd.read_csv(args.existing_datasets)
+        existing_datasets = set(existing_datasets_df["datasets"].values)
+    else:
+        existing_datasets = set()
+
+    print("Found", len(existing_datasets), "existing datasets")
 
     # Getting all GNPS Datasets
     all_datasets = _get_all_datasets()
 
+    # Filtering these datasets to only the ones that are not in the existing datasets
+    filtered_all_datasets = []
+
+    for dataset in all_datasets:
+        dataset_accession = dataset["dataset"]
+        
+        # Skipping already imported
+        if args.completeness != "all":
+            if dataset_accession in existing_datasets:
+                continue
+
+        # TODO: Filtering if too small dataset accession
+        try:
+            accession_int = int(dataset_accession.replace("MSV", ""))
+            if accession_int <= 78429:
+                continue
+        except:
+            pass
+
+        filtered_all_datasets.append(dataset)
+
+
+    print("GETTING", len(filtered_all_datasets), "DATASETS")
+    
+    # DEBUG
+    # filtered_all_datasets = filtered_all_datasets[:10]
+
+    # Subset if the option is selected
+    if args.completeness == "newsubset":
+        # randomize the order
+        import random
+        random.shuffle(filtered_all_datasets)
+
+        # get the first 50
+        filtered_all_datasets = filtered_all_datasets[:50]
+
     all_files_information = []
 
     # Getting each ones' files
-    for dataset_information in all_datasets:
-        current_dataset_files = _get_massive_files(dataset_information["dataset"])
+    for dataset_information in tqdm(filtered_all_datasets):
+        dataset_accession = dataset_information["dataset"]
+
+        print("Addressing Files From ", dataset_accession)
+
+        current_dataset_files = _get_massive_files(dataset_information["dataset"], acceptable_extensions=[])
 
         dataset_title = dataset_information["title"]
         sample_type = "MASSIVE"
@@ -112,9 +172,9 @@ def main(args):
                 collection_name, is_update, update_name =  _get_file_metadata(filename)
 
                 fileinformation_dict = {}
-                fileinformation_dict["study_id"] = dataset_accession
-                fileinformation_dict["file_path"] = filename
-                fileinformation_dict["USI"] = usi
+                fileinformation_dict["usi"] = usi
+                fileinformation_dict["dataset"] = dataset_accession
+                fileinformation_dict["filepath"] = filename
                 fileinformation_dict["sample_type"] = sample_type
                 fileinformation_dict["collection"] = collection_name
                 fileinformation_dict["is_update"] = is_update
@@ -131,11 +191,16 @@ def main(args):
     
     # Writing out the file
     file_information_df = pd.DataFrame(all_files_information)
-    file_information_df.to_csv(args.output_path)
+    file_information_df.to_csv(args.output_path, index=False, sep="\t")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Filter files based on extensions and preferences.")
     parser.add_argument('-o', '--output_path', type=str, required=True, help='Path to the output TSV file.')
+    parser.add_argument('--existing_datasets', type=str, default=None, help='Path to the existing datasets file.')
+
+    # adding parameter to on getting all or random subset
+    parser.add_argument('--completeness', type=str, default="new", help='all means ignoring current datasets, new means only new datasets, newsubset means only new datasets and a random subset of the existing datasets')
+        
     args = parser.parse_args()
     main(args)

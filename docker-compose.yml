@@ -90,11 +90,27 @@ services:
       - "gnps-datasetcache-web"
     volumes:
       - ./database/:/app/database:ro
+      - ./run_datasette.sh:/app/run_datasette.sh
     networks:
       - nginx-net
       - default
     restart: on-failure
-    command: datasette -p 5234 -h 0.0.0.0 --setting base_url /datasette/ --setting max_returned_rows 50000 --setting sql_time_limit_ms 60000 --setting max_csv_mb 0 /app/database/database.db
+    command: /app/run_datasette.sh
+
+  gnps-datasetcache-datasette2:
+    ports:
+      - "5236:5234" # This port selection of the internal port matching the external port of the web server is to get around a datasette bug
+    image: datasetteproject/datasette:0.64.6
+    depends_on:
+      - "gnps-datasetcache-web"
+    volumes:
+      - ./database/:/app/database:ro
+      - ./run_datasette.sh:/app/run_datasette.sh
+    networks:
+      - nginx-net
+      - default
+    restart: on-failure
+    command: /app/run_datasette.sh
 
 networks:
   nginx-net:
