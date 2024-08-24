@@ -46,7 +46,7 @@ def main():
 
     if ret_code != 0:
         # We get the global version
-        url = "http://datasetcache.gnps2.org:5235/datasette/database/filename.csv?_stream=on&_size=max"
+        url = "http://datasetcachedatasette.gnps2.org/datasette/database/filename.csv?_stream=on&_size=max"
 
         ret_code = stream_to_disk(url, args.output_dataset_filename)
 
