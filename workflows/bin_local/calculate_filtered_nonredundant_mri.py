@@ -114,14 +114,6 @@ def filter_redundant_files(input_df):
         group_df["extension"] = group_df["usi"].apply(lambda x: os.path.splitext(x)[-1])
         group_df["cleanedfilepath"] = group_df["filepath"].apply(lambda x: os.path.splitext(x)[0])
 
-        # stripping off first folder using path
-        group_df["cleanedfilepath"] = group_df["cleanedfilepath"].apply(lambda x: "/".join(Path(x).parts[1:]))
-
-        # Stripping off full path
-        group_df["cleanedfilename"] = group_df["cleanedfilepath"].apply(lambda x: os.path.basename(x))
-
-
-
         # Determining a score for what we want to choose
         group_df["score"] = 0.0
 
@@ -131,20 +123,25 @@ def filter_redundant_files(input_df):
         # If the file is mzXML, we want to add .5
         group_df.loc[group_df['extension'] == ".mzXML", "score"] += 0.5
 
-        # Count number of unique in cleaned path
-        number_of_uniquepath = group_df["cleanedfilepath"].nunique()
-        number_of_files = len(group_df)
-        number_of_uniquefilename = group_df["cleanedfilename"].nunique()
-
 
         if "MSV" in dataset:
             print("MSV", dataset)
 
             group_df["collection"] = group_df["filepath"].apply(lambda x: Path(x).parts[0])
 
-            
+            # stripping off first folder using path
+            group_df["cleanedfilepath"] = group_df["cleanedfilepath"].apply(lambda x: "/".join(Path(x).parts[1:]))
+
+            # Stripping off full path
+            group_df["cleanedfilename"] = group_df["cleanedfilepath"].apply(lambda x: os.path.basename(x))
+
             # If the file is ccms_peak collection
             group_df.loc[group_df['collection'] == "ccms_peak", "score"] += 1.0
+
+            # Count number of unique in cleaned path
+            number_of_uniquepath = group_df["cleanedfilepath"].nunique()
+            number_of_files = len(group_df)
+            number_of_uniquefilename = group_df["cleanedfilename"].nunique()
 
             if number_of_uniquefilename != number_of_files:
                 # sorting by score
@@ -174,6 +171,9 @@ def filter_redundant_files(input_df):
                 selected_list += group_df.to_dict(orient="records")
 
         else:
+            # Stripping off full path
+            group_df["cleanedfilename"] = group_df["cleanedfilepath"].apply(lambda x: os.path.basename(x))
+
             # We are not dealing with an MSV dataset, lets not consider collection, lets just consider the filename themselves
             # sorting by score
             group_df = group_df.sort_values("score", ascending=False)

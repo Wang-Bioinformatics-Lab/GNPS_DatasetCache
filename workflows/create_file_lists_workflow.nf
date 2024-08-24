@@ -135,13 +135,13 @@ process removeRedundantMRI {
 
     output:
     file 'all_nonredundant_mri.tsv'
-    file 'removed_mri.tsv'
+    file 'all_redundantremoved_mri.tsv'
 
     """
     python $baseDir/bin_local/calculate_filtered_nonredundant_mri.py \
     all_unique_mri.tsv \
     all_nonredundant_mri.tsv \
-    removed_mri.tsv
+    all_redundantremoved_mri.tsv
     """
 }
 
@@ -166,6 +166,7 @@ process createDownloadMRI {
 workflow {
     // Getting Existing Files
     all_dataset_files_ch = getcachefiles(1)
+    //all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
     
     // Getting unique datasets
     all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
