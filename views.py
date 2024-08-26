@@ -189,7 +189,7 @@ def nonredundantmri():
     return send_file("./workflows/nf_output/all_nonredundant_mri.tsv", as_attachment=True)
 
 @app.route('/dataset/redundantmri', methods=['GET'])
-def nonredundantmri():
+def redundantmri():
     return send_file("./workflows/nf_output/all_redundantremoved_mri.tsv", as_attachment=True)
 
 @app.route('/dataset/downloadmri', methods=['GET'])
