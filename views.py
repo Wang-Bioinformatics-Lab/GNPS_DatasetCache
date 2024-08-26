@@ -179,6 +179,25 @@ def getfiles(accession):
 def getallfiles():
     return send_file("./database/dump.csv", as_attachment=True)
 
+# Getting some dump files from the workflow
+@app.route('/dataset/uniquemri', methods=['GET'])
+def getuniquemri():
+    return send_file("./workflows/nf_output/all_unique_mri.tsv", as_attachment=True)
+
+@app.route('/dataset/nonredundantmri', methods=['GET'])
+def nonredundantmri():
+    return send_file("./workflows/nf_output/all_nonredundant_mri.tsv", as_attachment=True)
+
+@app.route('/dataset/redundantmri', methods=['GET'])
+def nonredundantmri():
+    return send_file("./workflows/nf_output/all_redundantremoved_mri.tsv", as_attachment=True)
+
+@app.route('/dataset/downloadmri', methods=['GET'])
+def downloadmri():
+    return send_file("./workflows/nf_output/download_mri.tsv", as_attachment=True)
+
+
+
 @app.route('/heartbeat', methods=['GET'])
 def testapi():
     return_obj = {}
@@ -217,23 +236,10 @@ def populate_unique_file_usi():
     tasks_compute.populate_unique_file_usi.delay()
     return "populate_unique_file_usi"
 
-
-# @app.route('/recompute', methods=['GET'])
-# def recompute():
-#     tasks_compute.recompute_all_datasets.delay()
-#     return "recompute"
-
-# @app.route('/precompute', methods=['GET'])
-# def precompute():
-#     tasks_compute.precompute_all_datasets.delay()
-#     return "precompute"
-
 @app.route('/dump', methods=['GET'])
 def dump():
     tasks_compute.dump.delay()
     return "dump"
-
-
 
 @app.route('/datasette/<path:path>',methods=['GET'])
 def proxy(path):
@@ -244,6 +250,8 @@ def proxy(path):
         headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
     return response
+
+
 
 ###############################
 # This is for conversion
