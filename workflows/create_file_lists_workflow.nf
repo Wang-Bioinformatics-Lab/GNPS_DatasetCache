@@ -152,21 +152,25 @@ process createDownloadMRI {
 
     input:
     file 'all_nonredundant_mri.tsv'
+    file 'all_mri.csv'
 
     output:
     file 'download_mri.tsv'
+    file 'download_thermoraw_mri.tsv'
 
     """
     python $baseDir/bin_local/create_download_mri.py \
     all_nonredundant_mri.tsv \
-    download_mri.tsv
+    all_mri.csv \
+    download_mri.tsv \
+    download_thermoraw_mri.tsv
     """
 }
 
 workflow {
     // Getting Existing Files
-    all_dataset_files_ch = getcachefiles(1)
-    //all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
+    // all_dataset_files_ch = getcachefiles(1)
+    all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
     
     // Getting unique datasets
     all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
@@ -178,7 +182,7 @@ workflow {
     (nonredundant_mri, _) = removeRedundantMRI(unique_mri)
 
     // Creating the download file
-    createDownloadMRI(nonredundant_mri)
+    createDownloadMRI(nonredundant_mri, all_dataset_files_ch)
 
     // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)
