@@ -39,15 +39,25 @@ def main():
     unkept_files_df = df[~df['usi'].isin(download_mri_df['usi'])]
     raw_files_df = unkept_files_df[unkept_files_df['usi'].str.endswith('.raw')]
 
-    print(len(raw_files_df))
+    print("BEFORE", len(raw_files_df))
 
-    filter_thermoraw_mri(raw_files_df, args.input_full_mri_list)
+    filtered_raw_files_df = filter_thermoraw_mri(raw_files_df, args.input_full_mri_list)
+
+    print("FILTERED", len(filtered_raw_files_df))
+
+    # Saving output for thermo raw
+    filtered_raw_files_df.to_csv(args.output_thermoraw_mri_list, sep="\t", index=False)
 
     
-def filter_thermoraw_mri(input_mri_df, input_full_mri_list):
-    all_mri_df = pd.read_csv(input_full_mri_list, engine="pyarrow")
+def filter_thermoraw_mri(raw_files_df, input_full_mri_list):
+    # keep only the usi column when reading
+    all_mri_df = pd.read_csv(input_full_mri_list, engine="pyarrow", usecols=['usi'])
+
     # Getting the usi
-    usi_list = input_mri_df['usi'].tolist()
+    usi_list = all_mri_df['usi'].tolist()
+
+    # getting usi list only if ".raw" is in the usi
+    usi_list = [usi for usi in usi_list if ".raw" in usi]
 
     # lets create a trie
     print("Creating trie")
@@ -57,10 +67,32 @@ def filter_thermoraw_mri(input_mri_df, input_full_mri_list):
 
     print("Searching the trie")
     # Searching the trie
-    for index, row in tqdm(all_mri_df.iterrows()):
-        prefix = row['usi']
-        if prefix in trie:
-            print("FOUND", sum(1 for _ in trie.iterkeys(prefix)))
+    all_unique_raw_usi = raw_files_df['usi'].unique()
+    kept_raw_usi = []
+    for raw_usi in tqdm(all_unique_raw_usi):
+        raw_usi
+        #print('PREFIX', prefix)
+        if raw_usi in trie:
+            #print("FOUND", prefix)
+            #print("FOUND", sum(1 for _ in trie.iterkeys(raw_usi)))
+            # output when it is found
+
+            all_found = list(trie.iterkeys(raw_usi))
+            #print(raw_usi)
+            #print(all_found)
+
+            if len(all_found) == 1:
+                kept_raw_usi.append(raw_usi)
+
+        else:
+            print("NOT FOUND", raw_usi)
+
+    # Filtering down the input dataframe
+    kept_raw_usi = set(kept_raw_usi)
+    filtered_raw_files_df = raw_files_df[raw_files_df['usi'].isin(kept_raw_usi)]
+
+    return filtered_raw_files_df
+
 
 
 

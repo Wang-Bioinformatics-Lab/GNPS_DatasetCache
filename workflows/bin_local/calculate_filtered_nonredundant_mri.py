@@ -166,6 +166,17 @@ def filter_redundant_files(input_df):
                                 if json_object2["selected"] != 1:
                                     removed_list.append(json_object2)
                                     json_object2["selected"] = 1
+                            
+                            # if we have an mzXML/mzML file, we remove the same filename in the same collection that is raw
+                            if  json_object2["cleanedfilename"] == current_cleanedfilename and \
+                                json_object2["collection"] == current_collection and \
+                                json_object["extension"] in (".mzXML", ".mzML") and \
+                                json_object2["extension"] in (".raw", ".RAW"):
+
+                                if json_object2["selected"] != 1:
+                                    removed_list.append(json_object2)
+                                    json_object2["selected"] = 1
+
             else:
                 # there is no duplication in filenames
                 selected_list += group_df.to_dict(orient="records")
@@ -201,6 +212,8 @@ def filter_redundant_files(input_df):
     filtered_removed_df = pd.DataFrame(removed_list)
 
     return filtered_selected_df, filtered_removed_df
+
+    # NOTE This should not appear twice: P91_03
 
 if __name__ == "__main__":
     main()
