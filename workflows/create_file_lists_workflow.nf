@@ -169,8 +169,8 @@ process createDownloadMRI {
 
 workflow {
     // Getting Existing Files
-    // all_dataset_files_ch = getcachefiles(1)
-    all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
+    all_dataset_files_ch = getcachefiles(1)
+    // all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
     
     // Getting unique datasets
     all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
