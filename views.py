@@ -197,7 +197,6 @@ def downloadmri():
     return send_file("./workflows/nf_output/download_mri.tsv", as_attachment=True)
 
 
-
 @app.route('/heartbeat', methods=['GET'])
 def testapi():
     return_obj = {}

@@ -168,6 +168,8 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
             pass
 
 def _import_unique_mri_files(files_df):
+    print("IMPORTING UNIQUE MRI", file=sys.stderr, flush=True)
+
     for record in tqdm(files_df.to_dict(orient="records")):
         try:
             usi = record["usi"]
@@ -193,7 +195,7 @@ def _import_unique_mri_files(files_df):
                                             size=size, 
                                             size_mb=size_mb)
         except:
-            raise
+            pass
 
 # @celery_instance.task(rate_limit='1/h')
 # def populate_all_massive():
