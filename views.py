@@ -177,7 +177,7 @@ def getfiles(accession):
 # End point to get the dump file for all the files
 @app.route('/dataset/files', methods=['GET'])
 def getallfiles():
-    return send_file("./database/dump.csv", as_attachment=True)
+    return send_file("./workflows/nf_output/all_dataset_files.csv", as_attachment=True)
 
 # Getting some dump files from the workflow
 @app.route('/dataset/uniquemri', methods=['GET'])
