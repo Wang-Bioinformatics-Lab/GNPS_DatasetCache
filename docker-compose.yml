@@ -52,14 +52,6 @@ services:
         limits:
           memory: 64G
 
-
-    
-  gnps-datasetcache-redis:
-    image: redis
-    restart: on-failure
-    networks:
-      - default
-
   gnps-datasetcache-conversion:
     # update build to use different docker file
     build:
@@ -77,7 +69,7 @@ services:
     command: /app/run_worker_conversion.sh
     
   gnps-datasetcache-redis:
-    image: redis
+    image: valkey/valkey:alpine3.20
     restart: on-failure
     networks:
       - default
