@@ -266,6 +266,65 @@ def populate_unique_file_usi():
 
     return 0
 
+@celery_instance.task
+def populate_uniquemri_computedinformation():
+    # reading the file
+    df = pd.read_csv("workflows/nf_output/resultv2_clasified.csv", sep=",")
+
+    # Fill NaN with -1
+    df = df.fillna(-1)
+
+    for record in tqdm(df.to_dict(orient="records")):
+        try:
+            mri = record["mri"]
+
+            import sys
+            #print("Processing", mri, file=sys.stderr, flush=True)
+            
+            ### Fill in the following: 
+            # RT_Range_in_Min = FloatField(default=0)
+            # Top_CEs = TextField(default="")
+            # Top_CE_Counts = TextField(default="")
+            # MassAnalyzer = TextField(default="")
+            # Ionization = TextField(default="")
+            # top_k_prec_mz_diffs = TextField(default="")
+            # top_k_prec_mz_diff_counts = TextField(default="")
+            # conseq_ms2_prec_increase = IntegerField(default=0)
+            # conseq_ms2_prec_decrease = IntegerField(default=0)
+            # conseq_ms2_prec_equal = IntegerField(default=0)
+            # prec_prop_equal = FloatField(default=0)
+            # prec_prop_increase = FloatField(default=0)
+            # prec_prop_decrease = FloatField(default=0)
+            # classification = TextField()
+
+            uniquemir_db = UniqueMRI.get(usi=mri)
+
+            uniquemir_db.RT_Range_in_Min = float(record["RT_Range_in_Min"])
+            uniquemir_db.Top_CEs = record["Top_CEs"]
+            uniquemir_db.Top_CE_Counts = record["Top_CE_Counts"]
+            uniquemir_db.MassAnalyzer = record["Analyzer"]
+            uniquemir_db.Ionization = record["Ionization"]
+            uniquemir_db.top_k_prec_mz_diffs = record["top_k_prec_mz_diffs"]
+            uniquemir_db.top_k_prec_mz_diff_counts = record["top_k_prec_mz_diff_counts"]
+            uniquemir_db.conseq_ms2_prec_increase = int(record["conseq_ms2_prec_increase"])
+            uniquemir_db.conseq_ms2_prec_decrease = int(record["conseq_ms2_prec_decrease"])
+            uniquemir_db.conseq_ms2_prec_equal = int(record["conseq_ms2_prec_equal"])
+            uniquemir_db.prec_prop_equal = float(record["prec_prop_equal"])
+            uniquemir_db.prec_prop_increase = float(record["prec_prop_increase"])
+            uniquemir_db.prec_prop_decrease = float(record["prec_prop_decrease"])
+            uniquemir_db.classification = record["classification"]
+
+            # Saving the record
+            uniquemir_db.save()
+
+            #print("SAVED", mri, file=sys.stderr, flush=True)
+
+        except Exception as e:
+            #import sys
+            #print("ERROR", e, mri, file=sys.stderr, flush=True)
+            pass
+
+
 # Going to massive and index all files
 @celery_instance.task
 def populate_massive_dataset(dataset_accession):
@@ -457,4 +516,5 @@ celery_instance.conf.task_routes = {
     'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
     'tasks_compute.populate_msv_files': {'queue': 'compute'},
     'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
+    'tasks_compute.populate_uniquemri_computedinformation': {'queue': 'compute'},
 }
