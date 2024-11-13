@@ -235,6 +235,11 @@ def populate_unique_file_usi():
     tasks_compute.populate_unique_file_usi.delay()
     return "populate_unique_file_usi"
 
+@app.route('/refresh/mriclassification/import', methods=['GET'])
+def classify_mri():
+    tasks_compute.populate_uniquemri_computedinformation.delay()
+    return "import_classify_mri"
+
 @app.route('/dump', methods=['GET'])
 def dump():
     tasks_compute.dump.delay()

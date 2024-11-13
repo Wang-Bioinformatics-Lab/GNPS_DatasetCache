@@ -28,8 +28,6 @@ class Filename(Model):
     # Administrative
     file_processed = TextField(default="No")
 
-    # TODO: add max and minimum retention time
-
     class Meta:
         database = db
 
@@ -55,10 +53,28 @@ class UniqueMRI(Model):
     instrument_vendor = TextField(index=True, default="")
     instrument_model = TextField(index=True, default="")
 
+    # Detailed Information About the File
+    RT_Range_in_Min = FloatField(default=0)
+    Top_CEs = TextField(default="")
+    Top_CE_Counts = TextField(default="")
+    MassAnalyzer = TextField(default="")
+    Ionization = TextField(default="")
+    top_k_prec_mz_diffs = TextField(default="")
+    top_k_prec_mz_diff_counts = TextField(default="")
+    conseq_ms2_prec_increase = IntegerField(default=0)
+    conseq_ms2_prec_decrease = IntegerField(default=0)
+    conseq_ms2_prec_equal = IntegerField(default=0)
+    prec_prop_equal = FloatField(default=0)
+    prec_prop_increase = FloatField(default=0)
+    prec_prop_decrease = FloatField(default=0)
+
+    classification = TextField(default="Unclassified")
+
     # Administrative
     file_processed = TextField(default="No")
 
-    # TODO: add max and minimum retention time
+    
+
 
     class Meta:
         database = db
