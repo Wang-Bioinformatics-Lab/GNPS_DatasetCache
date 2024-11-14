@@ -1,2 +1,2 @@
 run_classify:
-	python ./classify_mri.py ./data/resultv2_.csv ./data/resultv2_clasified.csv
+	python ./classify_mri.py ../test/data/resultv2_.csv ../test/data/resultv2_clasified.csv
