@@ -88,7 +88,10 @@ def main():
 
     df = classify_mri_files(df)
 
-    print(df.head())
+    # Summarizing the classififications
+    print("TOTAL LENGTH", len(df))
+    print("CLASSIFICATION COUNTS")
+    print(df['classification'].value_counts())
 
     # Save the output
     df.to_csv(args.output_csv, index=False, sep=",")
