@@ -182,7 +182,7 @@ def getallfiles():
 # Getting some dump files from the workflow
 @app.route('/dataset/uniquemri', methods=['GET'])
 def getuniquemri():
-    return send_file("./workflows/nf_output/all_unique_mri.tsv", as_attachment=True)
+    return send_file("./workflows/nf_output/database_unique_mri.csv", as_attachment=True)
 
 @app.route('/dataset/nonredundantmri', methods=['GET'])
 def nonredundantmri():

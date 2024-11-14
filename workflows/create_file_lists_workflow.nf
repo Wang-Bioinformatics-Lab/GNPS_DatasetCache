@@ -81,11 +81,13 @@ process getcachefiles {
 
     output:
     file 'all_dataset_files.csv'
+    file 'database_unique_mri.csv'
 
     """
     #wget 'https://datasetcache.gnps2.org/datasette/database/filename.csv?_stream=on&_size=max' -O all_dataset_files.csv
     python $baseDir/bin_local/get_current_cache_files.py \
-    all_dataset_files.csv
+    all_dataset_files.csv \
+    database_unique_mri.csv
     """
 }
 
@@ -169,20 +171,20 @@ process createDownloadMRI {
 
 workflow {
     // Getting Existing Files
-    all_dataset_files_ch = getcachefiles(1)
+    (database_dataset_files_ch, database_unique_mri_ch) = getcachefiles(1)
     // all_dataset_files_ch = file("all_dataset_files.csv") // For Easy Debugging
     
     // Getting unique datasets
-    all_datasets_ch = getUniqueDatasets(all_dataset_files_ch)
+    all_datasets_ch = getUniqueDatasets(database_dataset_files_ch)
 
     // Making the unique MRI Files
-    unique_mri = processUniqueUSI(all_dataset_files_ch)
+    unique_mri = processUniqueUSI(database_dataset_files_ch)
 
     // Removing Redundant MRI
     (nonredundant_mri, _) = removeRedundantMRI(unique_mri)
 
     // Creating the download file
-    createDownloadMRI(nonredundant_mri, all_dataset_files_ch)
+    createDownloadMRI(nonredundant_mri, database_dataset_files_ch)
 
     // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)
