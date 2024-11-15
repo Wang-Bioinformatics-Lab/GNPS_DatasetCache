@@ -282,6 +282,8 @@ def populate_uniquemri_computedinformation():
             #print("Processing", mri, file=sys.stderr, flush=True)
             
             ### Fill in the following: 
+            # spectra_ms1 = IntegerField(default=0)
+            # spectra_ms2 = IntegerField(default=0)
             # RT_Range_in_Min = FloatField(default=0)
             # Top_CEs = TextField(default="")
             # Top_CE_Counts = TextField(default="")
@@ -299,6 +301,8 @@ def populate_uniquemri_computedinformation():
 
             uniquemir_db = UniqueMRI.get(usi=mri)
 
+            uniquemir_db.spectra_ms1 = int(record["MS1_count"])
+            uniquemir_db.spectra_ms2 = int(record["MS2_count"])
             uniquemir_db.RT_Range_in_Min = float(record["RT_Range_in_Min"])
             uniquemir_db.Top_CEs = record["Top_CEs"]
             uniquemir_db.Top_CE_Counts = record["Top_CE_Counts"]
