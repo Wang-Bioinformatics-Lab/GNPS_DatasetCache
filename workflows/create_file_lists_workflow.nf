@@ -2,9 +2,6 @@
 nextflow.enable.dsl=2
 
 // Params
-
-params.
-
 params.mtblstoken = ""
 
 
