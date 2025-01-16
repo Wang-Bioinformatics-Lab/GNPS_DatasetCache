@@ -93,7 +93,7 @@ def main(args):
 
     # Getting the existing datasets
     if args.existing_datasets is not None:
-        existing_datasets_df = pd.read_csv(args.existing_datasets)
+        existing_datasets_df = pd.read_csv(args.existing_datasets, sep="\t")
         existing_datasets = set(existing_datasets_df["datasets"].values)
     else:
         existing_datasets = set()
@@ -111,10 +111,24 @@ def main(args):
         
         # Skipping already imported
         if args.completeness != "all":
-            if dataset_accession in existing_datasets:
-                continue
+            # We need to see if the dataset file counts don't match
+            # If the file counts match, then we can skip
+            massive_file_count = int(dataset["file_count"])
 
-        # TODO: Filtering if too small dataset accession
+            if dataset_accession in existing_datasets:
+                # lookup in existing_datasets_df
+                existing_dataset = existing_datasets_df[existing_datasets_df["datasets"] == dataset_accession]
+                dataset_cache_count = int(existing_dataset["count"].values[0])
+
+                if dataset_cache_count >= massive_file_count:
+                    print("Found dataset with same file count", dataset_accession)
+                    continue
+                else:
+                    print("Found dataset with different file count", dataset_accession, dataset_cache_count, massive_file_count)
+                    filtered_all_datasets.append(dataset)
+                    continue
+                    
+        # Filtering if too small dataset accession
         try:
             accession_int = int(dataset_accession.replace("MSV", ""))
             if accession_int <= 78429:

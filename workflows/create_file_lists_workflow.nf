@@ -1,7 +1,12 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
+// Params
+
+params.
+
 params.mtblstoken = ""
+
 
 TOOL_FOLDER = "$baseDir/bin"
 

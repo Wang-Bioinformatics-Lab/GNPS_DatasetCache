@@ -7,16 +7,22 @@ import time
 def main(args):
 
     # Reading the input
+    #all_files_df = pd.read_csv(args.input_path, sep=",", engine="pyarrow")
     all_files_df = pd.read_csv(args.input_path, sep=",")
 
     # Getting unique datasets
-    all_datasets = all_files_df["dataset"].unique()
+    all_files_df = all_files_df[["dataset", "usi"]]
 
-    # Writing out the unique datasets
-    df = pd.DataFrame()
-    df["datasets"] = all_datasets
+    # Counting all datasets
+    dataset_counts_df = all_files_df.groupby(["dataset"]).count()
 
-    df.to_csv(args.output_path, sep="\t", index=False)
+    # setting index to dataset column
+    dataset_counts_df = dataset_counts_df.reset_index()
+
+    # rename columns
+    dataset_counts_df = dataset_counts_df.rename(columns={"usi":"count", "dataset":"datasets"})    
+    
+    dataset_counts_df.to_csv(args.output_path, sep="\t", index=False)
 
 
 if __name__ == '__main__':
