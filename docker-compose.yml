@@ -13,7 +13,7 @@ services:
     networks:
       - default
       - nginx-net
-    restart: on-failure
+    restart: always
     command: /app/run_server.sh
     environment:
       VIRTUAL_HOST: datasetcache.gnps2.org
@@ -32,7 +32,7 @@ services:
     networks:
       - default
       - nginx-net
-    restart: on-failure
+    restart: always
     command: /app/run_worker_beat.sh
 
   gnps-datasetcache-worker:
@@ -45,7 +45,7 @@ services:
     networks:
       - default
       - nginx-net
-    restart: on-failure
+    restart: always
     command: /app/run_worker_compute.sh
     deploy:
       resources:
@@ -65,12 +65,12 @@ services:
     networks:
       - default
       - nginx-net
-    restart: on-failure
+    restart: always
     command: /app/run_worker_conversion.sh
     
   gnps-datasetcache-redis:
     image: valkey/valkey:alpine3.20
-    restart: on-failure
+    restart: always
     networks:
       - default
 
@@ -86,7 +86,7 @@ services:
     networks:
       - nginx-net
       - default
-    restart: on-failure
+    restart: always
     command: /app/run_datasette.sh
     environment:
       VIRTUAL_HOST: datasetcachedatasette.gnps2.org
@@ -106,7 +106,7 @@ services:
     networks:
       - nginx-net
       - default
-    restart: on-failure
+    restart: always
     command: /app/run_datasette.sh
 
 networks:

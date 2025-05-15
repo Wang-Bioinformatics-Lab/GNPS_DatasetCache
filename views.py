@@ -199,9 +199,24 @@ def downloadmri():
 
 @app.route('/heartbeat', methods=['GET'])
 def testapi():
-    return_obj = {}
-    return_obj["status"] = "success"
-    return json.dumps(return_obj)
+    status_obj = {}
+    status_obj["status"] = "up"
+
+    # checking the local disk free space
+    disk = os.statvfs(".")
+    free_space = disk.f_bavail * disk.f_frsize
+    percent_free = disk.f_bavail / disk.f_blocks
+
+    status_obj["percent_free"] = percent_free
+
+    if percent_free < 0.1:
+        status_obj["status"] = "error"
+        status_obj["message"] = "Disk is almost full"
+
+        return json.dumps(status_obj), 500
+
+    return json.dumps(status_obj)
+
 
 
 # Admin force updates
