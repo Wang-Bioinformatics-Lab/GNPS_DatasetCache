@@ -57,25 +57,24 @@ def _get_file_metadata(msv_path):
 @celery_instance.task()
 def refresh_all():
     # we will call the tasks here as subtasks
-    mwb_mtbls_files_result = calculate_repository_files.delay()
+    repository_files_result = calculate_repository_files.delay()
 
     # Wait for task to be done
     while(True):
         # checking if done
-        if mwb_mtbls_files_result.ready():
+        if repository_files_result.ready():
             break
 
         # sleep
-        print("WAITING FOR MTBLS/MWB TO FINISH", file=sys.stderr, flush=True)
+        print("WAITING FOR repository_files_result workflow TO FINISH", file=sys.stderr, flush=True)
         time.sleep(60)
+
+    return "DEBUG"
 
     # once these files are done, we want to populate
     populate_mwb_files.delay()
     populate_mtbls_files.delay()
     populate_msv_files.delay()
-
-    # we should consider doing MassIVE at the end
-    #populate_all_massive.delay()
 
     # finally we want to populate the output into the database
     populate_unique_file_usi.delay()
@@ -87,7 +86,8 @@ def refresh_all():
 def calculate_repository_files():
     # running the nextflow command
     dotenv.load_dotenv()
-    nextflow_cmd = "cd /app/workflows && nextflow run /app/workflows/create_file_lists_workflow.nf \
+    nextflow_cmd = "cd /app/workflows && export MAMBA_ALWAYS_YES='true' && \
+        nextflow run /app/workflows/create_file_lists_workflow.nf \
         --mtblstoken {} -c ./nextflow.config \
         > nextflow_stdout.log".format(os.environ["MTBLS_TOKEN"])
 
