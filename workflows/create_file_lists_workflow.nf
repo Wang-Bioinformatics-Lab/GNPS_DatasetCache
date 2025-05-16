@@ -51,6 +51,28 @@ process mtblsFiles {
     """
 }
 
+process csfpFiles {
+    errorStrategy 'ignore'
+
+    publishDir "./nf_output", mode: 'copy'
+
+    conda "$TOOL_FOLDER/conda_env.yml"
+
+    input:
+    val x
+    file existing_datasets
+
+    output:
+    file 'DigitalSampleFreezingPlatformFilePaths_ALL.tsv'
+
+    """
+    python $TOOL_FOLDER/getAllNORMAN_file_paths.py \
+    --output DigitalSampleFreezingPlatformFilePaths_ALL.tsv \
+    --study_id ALL \
+    --existing_datasets $existing_datasets
+    """
+}
+
 process gnpsFiles {
     errorStrategy 'ignore'
 
@@ -191,6 +213,7 @@ workflow {
     // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)
     mtblsFiles(1, all_datasets_ch)
+    csfpFiles(1, all_datasets_ch)
     gnpsFiles(1, all_datasets_ch)
     
 }
