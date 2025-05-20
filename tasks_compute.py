@@ -69,12 +69,11 @@ def refresh_all():
         print("WAITING FOR repository_files_result workflow TO FINISH", file=sys.stderr, flush=True)
         time.sleep(60)
 
-    return "DEBUG"
-
     # once these files are done, we want to populate
     populate_mwb_files.delay()
     populate_mtbls_files.delay()
     populate_msv_files.delay()
+    populate_norman_files.delay()
 
     # finally we want to populate the output into the database
     populate_unique_file_usi.delay()
@@ -145,6 +144,38 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
         usi = "mzspec:{}:{}".format(dataset_accession, filepath)
         filename = filepath
         sample_type = repo
+        collection_name = ""
+        is_update = 0
+        update_name = ""
+        create_time = datetime.datetime.now()
+        size = 0
+        size_mb = int( size / 1024 / 1024 )
+
+        try:
+            filename_db = Filename.get_or_create(
+                                            usi=usi,
+                                            filepath=filename, 
+                                            dataset=dataset_accession,
+                                            sample_type=sample_type,
+                                            collection=collection_name,
+                                            is_update=is_update,
+                                            update_name=update_name,
+                                            create_time=create_time,
+                                            size=size, 
+                                            size_mb=size_mb)
+        except:
+            pass
+
+
+def _import_norman_files(files_df):
+    for record in tqdm(files_df.to_dict(orient="records")):
+        # cleaning up the paths
+        dataset_accession = record["dataset"]
+        filepath = record["file_path"]
+        usi = record["usi"]
+
+        filename = filepath
+        sample_type = "NORMAN"
         collection_name = ""
         is_update = 0
         update_name = ""
@@ -245,6 +276,19 @@ def populate_mwb_files():
     _import_mwb_mtbls_files(df, repo="MWB")
 
     return 0
+
+
+@celery_instance.task
+def populate_norman_files():
+    # We assume that we have already run the workflow
+    # addressing mwb
+    df = pd.read_csv("workflows/nf_output/DigitalSampleFreezingPlatformFilePaths_ALL.tsv", sep="\t")
+
+    _import_norman_files(df, repo="NORMAN")
+
+    return 0
+
+
 
 @celery_instance.task
 def populate_mtbls_files():
@@ -519,6 +563,7 @@ celery_instance.conf.task_routes = {
     'tasks_compute.populate_mwb_files': {'queue': 'compute'},    
     'tasks_compute.populate_mtbls_files': {'queue': 'compute'},    
     'tasks_compute.populate_msv_files': {'queue': 'compute'},
+    'tasks_compute.populate_norman_files': {'queue': 'compute'},
     'tasks_compute.populate_unique_file_usi': {'queue': 'compute'},
     'tasks_compute.populate_uniquemri_computedinformation': {'queue': 'compute'},
 }
