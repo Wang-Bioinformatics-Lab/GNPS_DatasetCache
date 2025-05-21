@@ -51,7 +51,7 @@ process mtblsFiles {
     """
 }
 
-process csfpFiles {
+process normanFiles {
     errorStrategy 'ignore'
 
     publishDir "./nf_output", mode: 'copy'
@@ -213,7 +213,7 @@ workflow {
     // Getting all the files that can be used by webapp to update the database
     mwbFiles(1, all_datasets_ch)
     mtblsFiles(1, all_datasets_ch)
-    csfpFiles(1, all_datasets_ch)
     gnpsFiles(1, all_datasets_ch)
+    normanFiles(1, all_datasets_ch)
     
 }
