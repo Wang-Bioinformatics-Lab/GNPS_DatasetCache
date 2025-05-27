@@ -106,6 +106,8 @@ def main(args):
     # Filtering these datasets to only the ones that are not in the existing datasets
     filtered_all_datasets = []
 
+    # TODO: We need to change this so that there is a balanced mode where we select 50 of the existing and 50 new ones.
+
     for dataset in all_datasets:
         dataset_accession = dataset["dataset"]
         
