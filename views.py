@@ -245,6 +245,11 @@ def refresh_msv():
     tasks_compute.populate_msv_files.delay()
     return "populate_msv_files"
 
+@app.route('/refresh/norman/import', methods=['GET'])
+def refresh_norman():
+    tasks_compute.populate_norman_files.delay()
+    return "populate_msv_files"
+
 @app.route('/refresh/mriset/import', methods=['GET'])
 def populate_unique_file_usi():
     tasks_compute.populate_unique_file_usi.delay()
