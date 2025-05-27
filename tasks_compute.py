@@ -544,7 +544,7 @@ def recompute_file(filepath):
 celery_instance.conf.beat_schedule = {
     "refresh_all": {
         "task": "tasks_compute.refresh_all",
-        "schedule": 86400
+        "schedule": 3600
     },
     "dump": {
         "task": "tasks_compute.dump",
