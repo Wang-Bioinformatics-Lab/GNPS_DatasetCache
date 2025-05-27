@@ -284,7 +284,7 @@ def populate_norman_files():
     # addressing mwb
     df = pd.read_csv("workflows/nf_output/DigitalSampleFreezingPlatformFilePaths_ALL.tsv", sep="\t")
 
-    _import_norman_files(df, repo="NORMAN")
+    _import_norman_files(df)
 
     return 0
 
