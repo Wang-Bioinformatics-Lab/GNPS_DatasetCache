@@ -170,7 +170,7 @@ def _import_mwb_mtbls_files(files_df, repo="MWB"):
 def _import_norman_files(files_df):
     for record in tqdm(files_df.to_dict(orient="records")):
         # cleaning up the paths
-        dataset_accession = record["dataset"]
+        dataset_accession = record["study_id"]
         filepath = record["file_path"]
         usi = record["usi"]
 
