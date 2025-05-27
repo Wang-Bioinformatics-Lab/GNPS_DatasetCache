@@ -172,7 +172,7 @@ def _import_norman_files(files_df):
         # cleaning up the paths
         dataset_accession = record["study_id"]
         filepath = record["file_path"]
-        usi = record["usi"]
+        usi = record["USI"]
 
         filename = filepath
         sample_type = "NORMAN"
