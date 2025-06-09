@@ -152,8 +152,8 @@ def main(args):
         import random
         random.shuffle(filtered_all_datasets)
 
-        # get the first 50
-        filtered_all_datasets = filtered_all_datasets[:50]
+        # get the first 500
+        filtered_all_datasets = filtered_all_datasets[:500]
 
     all_files_information = []
 
