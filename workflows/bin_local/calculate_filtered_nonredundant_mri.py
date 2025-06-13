@@ -6,9 +6,13 @@ import argparse
 from pathlib import Path
 import requests
 
+# for debugging
+#import requests_cache
+#requests_cache.install_cache('massive_cache')  # Cache for 30 minutes
+
 # Extract MRIs with sample_type GNPS, MTBLS, MWB and ends with mzML/mzml or mzXML/mzxml
 # Allowed sample types and file extensions
-allowed_sample_types = {'GNPS', 'MTBLS', 'MWB'}
+#allowed_sample_types = {'GNPS', 'MTBLS', 'MWB'}
 #allowed_extensions = {'.mzXML', '.mzML', '.mzml', '.mzxml'}
 
 
@@ -92,8 +96,9 @@ def filter_mri(input_mri_df):
     mwb_df = df[df['sample_type'] == "MWB"]
     mtbls_df = df[df['sample_type'] == "MTBLS"]
     gnps_df = df[df['dataset'].isin(gnps_datasets)]
+    norman_df = df[df['sample_type'] == "NORMAN"]
 
-    all_metabolomics_df = pd.concat([mwb_df, mtbls_df, gnps_df])
+    all_metabolomics_df = pd.concat([mwb_df, mtbls_df, gnps_df, norman_df])
 
     # Now we are doing the hard part, we want to make sure that we are only keeping one file per dataset
     filtered_selected_df, filtered_removed_df = filter_redundant_files(all_metabolomics_df)
@@ -106,9 +111,13 @@ def filter_redundant_files(input_df):
     selected_list = []
     removed_list = []
 
+    # printing all datasets first
+    print("Total datasets to process:", len(grouped_by_dataset))
+
     for dataset, group_df in grouped_by_dataset:
+        print("Processing dataset:", dataset)
+
         #print(dataset, len(group_df))
-        #print(group_df)
 
         # remove extension
         group_df["extension"] = group_df["usi"].apply(lambda x: os.path.splitext(x)[-1])
@@ -125,7 +134,6 @@ def filter_redundant_files(input_df):
 
 
         if "MSV" in dataset:
-            print("MSV", dataset)
 
             group_df["collection"] = group_df["filepath"].apply(lambda x: Path(x).parts[0])
 
