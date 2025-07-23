@@ -19,3 +19,6 @@ attach-worker:
 
 attach-conversion:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-conversion_1  /bin/bash
+
+init_modules:
+	git submodule update --init --recursive 

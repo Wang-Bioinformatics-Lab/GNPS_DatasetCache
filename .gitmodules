@@ -4,3 +4,6 @@
 [submodule "workflows/GNPSDataPackage"]
 	path = workflows/GNPSDataPackage
 	url = https://github.com/Wang-Bioinformatics-Lab/GNPSDataPackage.git
+[submodule "workflows/PerScanSummarizer_Workflow"]
+	path = workflows/PerScanSummarizer_Workflow
+	url = https://github.com/Wang-Bioinformatics-Lab/PerScanSummarizer_Workflow.git
