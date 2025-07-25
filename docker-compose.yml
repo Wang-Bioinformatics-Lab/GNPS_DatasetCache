@@ -84,7 +84,7 @@ services:
       resources:
         limits:
           memory: 32G
-          cpus: 8
+          cpus: '8'
     
   gnps-datasetcache-redis:
     image: valkey/valkey:alpine3.20
