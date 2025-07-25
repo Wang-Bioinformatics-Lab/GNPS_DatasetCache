@@ -9,7 +9,7 @@ server-compose-background:
 
 server-compose-production:
 	docker-compose --compatibility build
-	docker-compose --compatibility up -d 
+	docker-compose --compatibility -f docker-compose.yml -f docker-compose-production.yml up -d 
 
 attach:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-web_1 /bin/bash
@@ -19,3 +19,6 @@ attach-worker:
 
 attach-conversion:
 	docker exec -i -t gnps_datasetcache_gnps-datasetcache-conversion_1  /bin/bash
+
+init_modules:
+	git submodule update --init --recursive 

@@ -275,6 +275,14 @@ def proxy(path):
         response = Response(resp.content, resp.status_code, headers)
     return response
 
+###############################
+# This is for dataset summary
+###############################
+import tasks_datasetsummary
+@app.route('/refresh/datasetsummary', methods=['GET'])
+def datasetsummary():
+    tasks_datasetsummary.calculate_dataset_summaries.delay()
+    return "calculate_dataset_summaries"
 
 
 ###############################

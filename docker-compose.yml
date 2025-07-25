@@ -67,6 +67,19 @@ services:
       - nginx-net
     restart: always
     command: /app/run_worker_conversion.sh
+
+  gnps-datasetcache-worker-datasetsummary:
+    container_name: gnps-datasetcache-worker-datasetsummary
+    build:
+      context: .
+    volumes:
+      - ./workflows/:/app/workflows
+      - /data/datasets:/data/datasets
+      - ./gscratch:/data/gscratch
+    networks:
+      - default
+    restart: always
+    command: /app/run_worker_datasetsummary.sh
     
   gnps-datasetcache-redis:
     image: valkey/valkey:alpine3.20
