@@ -6,4 +6,9 @@ services:
       - ./workflows/:/app/workflows
       - /data/datasets:/data/datasets
       - /data/gscratch:/data/gscratch
+    deploy:
+      resources:
+        limits:
+          memory: 32G
+          cpus: '8'
     

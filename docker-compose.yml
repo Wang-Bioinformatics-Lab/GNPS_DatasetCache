@@ -80,11 +80,6 @@ services:
       - default
     restart: always
     command: /app/run_worker_datasetsummary.sh
-    deploy:
-      resources:
-        limits:
-          memory: 32G
-          cpus: '8'
     
   gnps-datasetcache-redis:
     image: valkey/valkey:alpine3.20
