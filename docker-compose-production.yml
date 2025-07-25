@@ -1,4 +1,9 @@
 version: '3'
 
 services:
-  
+  gnps-datasetcache-worker-datasetsummary:
+    volumes:
+      - ./workflows/:/app/workflows
+      - /data/datasets:/data/datasets
+      - /data/gscratch:/data/gscratch
+    

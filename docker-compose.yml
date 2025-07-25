@@ -69,7 +69,7 @@ services:
     command: /app/run_worker_conversion.sh
 
   gnps-datasetcache-worker-datasetsummary:
-    container: gnps-datasetcache-worker-datasetsummary
+    container_name: gnps-datasetcache-worker-datasetsummary
     build:
       context: .
     volumes:
