@@ -71,8 +71,15 @@ def _get_gnps_dataset_list(file_mri_df):
         # checking if GNPS is in the dataset title
         gnps_datasets = [x for x in all_massive_datasets if "GNPS" in x["title"]]
 
+        # we are going to use the keyword criteria
+        metabolomics_datasets = [x for x in gnps_datasets if "DatasetType:Metabolomics" in x["keywords"]]
+
         # Getting the GNPS dataset accessions
         gnps_datasets_accessions = [x["dataset"] for x in gnps_datasets]
+        metabolomics_datasets_accessions = [x["dataset"] for x in metabolomics_datasets]
+
+        # merge the two lists and unique them
+        gnps_datasets_accessions = list(set(gnps_datasets_accessions + metabolomics_datasets_accessions))
 
         return gnps_datasets_accessions
     except:
