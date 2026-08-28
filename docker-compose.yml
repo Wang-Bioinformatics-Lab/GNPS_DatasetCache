@@ -1,5 +1,11 @@
 version: '3'
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   gnps-datasetcache-web:
     build: .
@@ -14,6 +20,7 @@ services:
       - default
       - nginx-net
     restart: always
+    logging: *default-logging
     command: /app/run_server.sh
     environment:
       VIRTUAL_HOST: datasetcache.gnps2.org
@@ -33,6 +40,7 @@ services:
       - default
       - nginx-net
     restart: always
+    logging: *default-logging
     command: /app/run_worker_beat.sh
 
   gnps-datasetcache-worker:
@@ -46,6 +54,7 @@ services:
       - default
       - nginx-net
     restart: always
+    logging: *default-logging
     command: /app/run_worker_compute.sh
     deploy:
       resources:
@@ -66,6 +75,7 @@ services:
       - default
       - nginx-net
     restart: always
+    logging: *default-logging
     command: /app/run_worker_conversion.sh
 
   gnps-datasetcache-worker-datasetsummary:
@@ -79,11 +89,13 @@ services:
     networks:
       - default
     restart: always
+    logging: *default-logging
     command: /app/run_worker_datasetsummary.sh
     
   gnps-datasetcache-redis:
     image: valkey/valkey:alpine3.20
     restart: always
+    logging: *default-logging
     networks:
       - default
 
@@ -100,6 +112,7 @@ services:
       - nginx-net
       - default
     restart: always
+    logging: *default-logging
     command: /app/run_datasette.sh
     environment:
       VIRTUAL_HOST: datasetcachedatasette.gnps2.org
@@ -120,6 +133,7 @@ services:
       - nginx-net
       - default
     restart: always
+    logging: *default-logging
     command: /app/run_datasette.sh
 
 networks:
